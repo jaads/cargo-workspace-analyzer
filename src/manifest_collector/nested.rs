@@ -4,8 +4,9 @@ use walkdir::WalkDir;
 use serde::Deserialize;
 use crate::manifest_collector::manifest_reader::load_cargo_toml_content;
 
+/// The Cargo.toml file aka. the manifest from a package.
 #[derive(Deserialize, Debug, PartialEq)]
-struct CargoToml {
+struct Manifest {
     package: Package,
     dependencies: Option<HashMap<String, Dependency>>,
 }
@@ -25,10 +26,10 @@ enum Dependency {
 #[derive(Debug, PartialEq)]
 pub struct ManifestFinding {
     path: PathBuf,
-    content: CargoToml,
+    manifest: Manifest,
 }
 
-type ManifestFindings = Vec<ManifestFinding>;
+pub type ManifestFindings = Vec<ManifestFinding>;
 
 pub fn collect_manifests(workspace_dir: &Path) -> ManifestFindings {
     let mut packages = Vec::new();
@@ -48,7 +49,7 @@ pub fn collect_manifests(workspace_dir: &Path) -> ManifestFindings {
                 // Save to collection
                 packages.push(ManifestFinding {
                     path: path.to_path_buf(),
-                    content: manifest,
+                    manifest,
                 });
             }
         }
@@ -102,9 +103,9 @@ mod tests {
             let package = packages.iter().find(|p| p.path == expected_path).expect("Package not found");
 
             // Assertions to verify the content
-            assert_eq!(package.content.package.name, expected_name);
+            assert_eq!(package.manifest.package.name, expected_name);
             assert_eq!(package.path, expected_path);
-            assert!(package.content.dependencies.is_none());
+            assert!(package.manifest.dependencies.is_none());
         }
     }
 

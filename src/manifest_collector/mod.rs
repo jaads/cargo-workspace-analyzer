@@ -1,12 +1,14 @@
 use std::path::Path;
-use crate::manifest_collector::package_manifests::collect_manifests;
-use crate::manifest_collector::virtual_manifest::get_root_manifest;
+use crate::manifest_collector::nested::{collect_manifests, ManifestFindings};
+use crate::manifest_collector::root::{get_root_manifest, CargoRootManifest};
 
-mod package_manifests;
-mod virtual_manifest;
+mod nested;
+mod root;
 mod manifest_reader;
 
-pub fn get_manifest(dir: &Path) {
-    collect_manifests(dir);
-    get_root_manifest(dir);
+pub fn get_manifests(dir: &Path) -> (CargoRootManifest, ManifestFindings) {
+    let root = get_root_manifest(dir);
+    let nested = collect_manifests(dir);
+
+    (root, nested)
 }

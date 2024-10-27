@@ -4,6 +4,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use crate::manifest_collector::manifest_reader::load_cargo_toml_content;
 
+/// The "virtual" manifest
 #[derive(Deserialize, Debug)]
 pub struct CargoRootManifest {
     pub package: Option<Package>,
