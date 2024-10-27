@@ -4,7 +4,7 @@ use crate::manifest_collector::root::{get_root_manifest, CargoRootManifest};
 
 mod nested;
 mod root;
-mod manifest_reader;
+mod reader;
 
 pub fn get_manifests(dir: &Path) -> (CargoRootManifest, ManifestFindings) {
     let root = get_root_manifest(dir);

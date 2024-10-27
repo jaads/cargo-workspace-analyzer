@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 use serde::Deserialize;
-use crate::manifest_collector::manifest_reader::load_cargo_toml_content;
+use crate::manifest_collector::reader::load_cargo_toml_content;
 
 /// The Cargo.toml file aka. the manifest from a package.
 #[derive(Deserialize, Debug, PartialEq)]
