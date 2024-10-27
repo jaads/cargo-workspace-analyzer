@@ -1,8 +1,8 @@
 use std::collections::HashMap;
-use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 use serde::Deserialize;
+use crate::manifest_collector::manifest_reader::load_cargo_toml_content;
 
 #[derive(Deserialize, Debug, PartialEq)]
 struct CargoToml {
@@ -15,7 +15,6 @@ struct Package {
     name: String,
 }
 
-
 #[derive(Deserialize, Debug, PartialEq)]
 #[serde(untagged)]
 enum Dependency {
@@ -23,34 +22,15 @@ enum Dependency {
     Detailed { version: Option<String>, path: Option<String> },
 }
 
-
 #[derive(Debug, PartialEq)]
-pub struct Manifest {
+pub struct ManifestFinding {
     path: PathBuf,
-    file: CargoToml,
+    content: CargoToml,
 }
 
-fn parse_cargo_toml(path: &Path) -> Option<CargoToml> {
-    // Attempt to read the file
-    let content = match fs::read_to_string(path) {
-        Ok(content) => content,
-        Err(e) => {
-            eprintln!("Failed to read {}: {}", path.display(), e);
-            return None;
-        }
-    };
+type ManifestFindings = Vec<ManifestFinding>;
 
-    // Attempt to parse the TOML content
-    match toml::from_str(&content) {
-        Ok(parsed) => Some(parsed),
-        Err(e) => {
-            eprintln!("Failed to parse {}: {}", path.display(), e);
-            None
-        }
-    }
-}
-
-pub fn collect_manifests(workspace_dir: &Path) -> Vec<Manifest> {
+pub fn collect_manifests(workspace_dir: &Path) -> ManifestFindings {
     let mut packages = Vec::new();
 
     for entry in WalkDir::new(workspace_dir).into_iter().filter_map(|e| e.ok()) {
@@ -63,12 +43,12 @@ pub fn collect_manifests(workspace_dir: &Path) -> Vec<Manifest> {
 
             if cargo_toml_path.exists() && src_dir.exists() && src_dir.is_dir() {
                 // Read the content of Cargo.toml
-                let toml_file = parse_cargo_toml(&cargo_toml_path).unwrap();
+                let manifest = load_cargo_toml_content(&cargo_toml_path).unwrap();
 
                 // Save to collection
-                packages.push(Manifest {
+                packages.push(ManifestFinding {
                     path: path.to_path_buf(),
-                    file: toml_file,
+                    content: manifest,
                 });
             }
         }
@@ -76,6 +56,7 @@ pub fn collect_manifests(workspace_dir: &Path) -> Vec<Manifest> {
 
     packages
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -108,27 +89,27 @@ mod tests {
 
         // Create a vector of expected Package instances and make it mutable
         let mut expected_packages = vec![
-            Manifest {
+            ManifestFinding {
                 path: package1.path().to_path_buf(),
-                file: CargoToml {
+                content: CargoToml {
                     package: Package {
                         name: "package1".to_string(),
                     },
                     dependencies: None
                 }
             },
-            Manifest {
+            ManifestFinding {
                 path: package2.path().to_path_buf(),
-                file: CargoToml {
+                content: CargoToml {
                     package: Package {
                         name: "package2".to_string()
                     },
                     dependencies: None
                 }
             },
-            Manifest {
+            ManifestFinding {
                 path: package3.path().to_path_buf(),
-                file: CargoToml {
+                content: CargoToml {
                     package: Package {
                         name: "package3".to_string()
                     },

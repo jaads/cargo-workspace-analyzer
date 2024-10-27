@@ -4,6 +4,7 @@ use crate::manifest_collector::virtual_manifest::get_root_manifest;
 
 mod package_manifests;
 mod virtual_manifest;
+mod manifest_reader;
 
 pub fn get_manifest(dir: &Path) {
     collect_manifests(dir);
