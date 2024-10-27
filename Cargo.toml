@@ -1,0 +1,8 @@
+[package]
+name = "cargo-workspace-analyzer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+walkdir = "2.5.0"
+tempfile = "3.13.0"
