@@ -2,6 +2,12 @@
 name = "cargo-workspace-analyzer"
 version = "0.1.0"
 edition = "2021"
+authors = ["Jan Arends <kontakt@jaads.de>"]
+description = "A CLI tool that counts the amount of packages in a cargo workspace"
+license = "GPL-3"
+repository = "https://github.com/jaads/cargo-workspace-analyzer"
+keywords = ["cargo", "workspace", "pacakges", "analyzer"]
+categories = ["command-line-utilities", "development-tools", "filesystem"]
 
 [dependencies]
 walkdir = "2.5.0"
