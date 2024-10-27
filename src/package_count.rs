@@ -49,6 +49,9 @@ mod tests {
         let package2 = workspace_path.join("package2");
         create_package(&package2);
 
+        let package3 = workspace_path.join("lib/nested-package");
+        create_package(&package3);
+
         // Create a directory without src or Cargo.toml (not a package)
         let non_package = workspace_path.join("non_package");
         fs::create_dir_all(&non_package).expect("Failed to create non-package directory");
@@ -59,6 +62,6 @@ mod tests {
 
         // Run the test
         let package_count = count_packages(workspace_path.to_str().unwrap());
-        assert_eq!(package_count, 2);
+        assert_eq!(package_count, 3);
     }
 }
