@@ -87,43 +87,25 @@ mod tests {
         // Run the function and declare it as mutable for sorting
         let mut packages = collect_manifests(temp_dir.path());
 
-        // Create a vector of expected Package instances and make it mutable
-        let mut expected_packages = vec![
-            ManifestFinding {
-                path: package1.path().to_path_buf(),
-                content: CargoToml {
-                    package: Package {
-                        name: "package1".to_string(),
-                    },
-                    dependencies: None
-                }
-            },
-            ManifestFinding {
-                path: package2.path().to_path_buf(),
-                content: CargoToml {
-                    package: Package {
-                        name: "package2".to_string()
-                    },
-                    dependencies: None
-                }
-            },
-            ManifestFinding {
-                path: package3.path().to_path_buf(),
-                content: CargoToml {
-                    package: Package {
-                        name: "package3".to_string()
-                    },
-                    dependencies: None
-                }
-            },
+        // Verify that 3 packages were collected
+        assert_eq!(packages.len(), 3, "Expected 3 packages to be found");
+
+        // Define expected data for each package for easier assertions
+        let expected_data = vec![
+            (package1.path(), "package1"),
+            (package2.path(), "package2"),
+            (package3.path(), "package3"),
         ];
 
-        // Sort both vectors by path to ensure consistent ordering
-        packages.sort_by(|a, b| a.path.cmp(&b.path));
-        expected_packages.sort_by(|a, b| a.path.cmp(&b.path));
+        // Iterate through expected data and verify each package is present
+        for (expected_path, expected_name) in expected_data {
+            let package = packages.iter().find(|p| p.path == expected_path).expect("Package not found");
 
-        // Assert that the collected packages match the expected packages
-        assert_eq!(packages, expected_packages);
+            // Assertions to verify the content
+            assert_eq!(package.content.package.name, expected_name);
+            assert_eq!(package.path, expected_path);
+            assert!(package.content.dependencies.is_none());
+        }
     }
 
     #[test]
