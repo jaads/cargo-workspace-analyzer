@@ -1,17 +1,29 @@
-# cargo-workspace-analyzer
-Gives insights about cargo packages and how they are related to each other
+# Cargo workspace analyzer
 
- # Cargo workspace analyzer
- A CLI tool which traverses a [Cargo workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) and gets insights of it.
+A CLI tool which provides insights about
+a [Cargo workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html).
 
- Currently, the following is supported:\
- - count the number of packages within the workspace
+Currently, the following is supported:
 
+- count the number of packages within a workspace
 
- Example
+## How to use
+
+Install it globally with `cargo install`:
+
  ```sh
- cargo-install cargo-workspace-analyzer
+ cargo install cargo-workspace-analyzer
+ ```
 
+Then navigate to a Cargo workspace and run the tool:
+
+ ```sh
  cd path/to/your/workspace
  cargo-workspace-analyzer
  ```
+
+## Roadmap
+
+The following is currently planed.
+
+- show how packages are related to each other
