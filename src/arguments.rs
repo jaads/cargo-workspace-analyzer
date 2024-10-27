@@ -1,10 +1,10 @@
 use argh::FromArgs;
 
 #[derive(FromArgs)]
-/// A tool to analyze Rust workspace packages
+/// CLI arguments
 pub struct Arguments {
     /// the directory of the workspace to analyze.
-    /// Default to the current directory
+    /// Defaults to the current working directory.
     #[argh(option, default = "\".\".to_string()")]
     pub workspace_dir: String,
 }
