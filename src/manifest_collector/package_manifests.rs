@@ -1,11 +1,53 @@
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug, PartialEq)]
+struct CargoToml {
+    package: Package,
+    dependencies: Option<HashMap<String, Dependency>>,
+}
+
+#[derive(Deserialize, Debug, PartialEq)]
+struct Package {
+    name: String,
+}
+
+
+#[derive(Deserialize, Debug, PartialEq)]
+#[serde(untagged)]
+enum Dependency {
+    Simple(String),
+    Detailed { version: Option<String>, path: Option<String> },
+}
+
 
 #[derive(Debug, PartialEq)]
 pub struct Manifest {
     path: PathBuf,
-    content: String,
+    file: CargoToml,
+}
+
+fn parse_cargo_toml(path: &Path) -> Option<CargoToml> {
+    // Attempt to read the file
+    let content = match fs::read_to_string(path) {
+        Ok(content) => content,
+        Err(e) => {
+            eprintln!("Failed to read {}: {}", path.display(), e);
+            return None;
+        }
+    };
+
+    // Attempt to parse the TOML content
+    match toml::from_str(&content) {
+        Ok(parsed) => Some(parsed),
+        Err(e) => {
+            eprintln!("Failed to parse {}: {}", path.display(), e);
+            None
+        }
+    }
 }
 
 pub fn collect_manifests(workspace_dir: &Path) -> Vec<Manifest> {
@@ -21,12 +63,13 @@ pub fn collect_manifests(workspace_dir: &Path) -> Vec<Manifest> {
 
             if cargo_toml_path.exists() && src_dir.exists() && src_dir.is_dir() {
                 // Read the content of Cargo.toml
-                if let Ok(content) = fs::read_to_string(&cargo_toml_path) {
-                    packages.push(Manifest {
-                        path: path.to_path_buf(),
-                        content,
-                    });
-                }
+                let toml_file = parse_cargo_toml(&cargo_toml_path).unwrap();
+
+                // Save to collection
+                packages.push(Manifest {
+                    path: path.to_path_buf(),
+                    file: toml_file,
+                });
             }
         }
     }
@@ -67,15 +110,30 @@ mod tests {
         let mut expected_packages = vec![
             Manifest {
                 path: package1.path().to_path_buf(),
-                content: "[package]\nname = \"package1\"".to_string(),
+                file: CargoToml {
+                    package: Package {
+                        name: "package1".to_string(),
+                    },
+                    dependencies: None
+                }
             },
             Manifest {
                 path: package2.path().to_path_buf(),
-                content: "[package]\nname = \"package2\"".to_string(),
+                file: CargoToml {
+                    package: Package {
+                        name: "package2".to_string()
+                    },
+                    dependencies: None
+                }
             },
             Manifest {
                 path: package3.path().to_path_buf(),
-                content: "[package]\nname = \"package3\"".to_string(),
+                file: CargoToml {
+                    package: Package {
+                        name: "package3".to_string()
+                    },
+                    dependencies: None
+                }
             },
         ];
 

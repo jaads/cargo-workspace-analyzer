@@ -5,6 +5,7 @@ use crate::package_count::count_packages;
 
 mod package_count;
 mod arguments;
+mod manifest_collector;
 
 fn main() {
     let args = get_args();
