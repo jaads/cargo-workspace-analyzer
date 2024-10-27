@@ -1,33 +1,9 @@
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use walkdir::WalkDir;
 use serde::Deserialize;
+use crate::manifest_collector::nested_types::ManifestFinding;
 use crate::manifest_collector::reader::load_cargo_toml_content;
 
-/// The Cargo.toml file aka. the manifest from a package.
-#[derive(Deserialize, Debug, PartialEq)]
-struct Manifest {
-    package: Package,
-    dependencies: Option<HashMap<String, Dependency>>,
-}
-
-#[derive(Deserialize, Debug, PartialEq)]
-struct Package {
-    name: String,
-}
-
-#[derive(Deserialize, Debug, PartialEq)]
-#[serde(untagged)]
-enum Dependency {
-    Simple(String),
-    Detailed { version: Option<String>, path: Option<String> },
-}
-
-#[derive(Debug, PartialEq)]
-pub struct ManifestFinding {
-    path: PathBuf,
-    manifest: Manifest,
-}
 
 pub type ManifestFindings = Vec<ManifestFinding>;
 
