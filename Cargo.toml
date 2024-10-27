@@ -1,6 +1,6 @@
 [package]
 name = "cargo-workspace-analyzer"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Jan Arends <kontakt@jaads.de>"]
 description = "A CLI tool that counts the amount of packages in a cargo workspace"
