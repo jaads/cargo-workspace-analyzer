@@ -1,14 +1,14 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
 #[derive(Debug, PartialEq)]
-struct Manifest {
+pub struct Manifest {
     path: PathBuf,
     content: String,
 }
 
-fn collect_manifests(workspace_dir: &str) -> Vec<Manifest> {
+pub fn collect_manifests(workspace_dir: &Path) -> Vec<Manifest> {
     let mut packages = Vec::new();
 
     for entry in WalkDir::new(workspace_dir).into_iter().filter_map(|e| e.ok()) {
@@ -61,7 +61,7 @@ mod tests {
         package3.child("Cargo.toml").write_str("[package]\nname = \"package3\"").unwrap();
 
         // Run the function and declare it as mutable for sorting
-        let mut packages = collect_manifests(temp_dir.path().to_str().unwrap());
+        let mut packages = collect_manifests(temp_dir.path());
 
         // Create a vector of expected Package instances and make it mutable
         let mut expected_packages = vec![
@@ -105,7 +105,7 @@ mod tests {
         incomplete_package.child("Cargo.toml").write_str("[package]\nname = \"incomplete_package\"").unwrap();
 
         // Run the function
-        let packages = collect_manifests(temp_dir.path().to_str().unwrap());
+        let packages = collect_manifests(temp_dir.path());
 
         // Assert that no packages are detected
         assert_eq!(packages.len(), 0);

@@ -3,7 +3,7 @@ use std::path::Path;
 
 /// Reads the contents of `Cargo.toml` in the specified directory.
 /// Panics if the file does not exist or cannot be read.
-pub fn read_root_manifest(dir: &Path) -> String {
+pub fn get_root_manifest(dir: &Path) -> String {
     let cargo_toml_path = dir.join("Cargo.toml");
 
     if cargo_toml_path.exists() {
@@ -32,7 +32,7 @@ mod tests {
         writeln!(file, "[package]\nname = \"test\"\nversion = \"0.1.0\"").expect("Failed to write to Cargo.toml");
 
         // Test that the function reads the file correctly
-        let contents = read_root_manifest(temp_dir.path());
+        let contents = get_root_manifest(temp_dir.path());
         assert!(contents.contains("[package]"));
         assert!(contents.contains("name = \"test\""));
         assert!(contents.contains("version = \"0.1.0\""));
@@ -47,6 +47,6 @@ mod tests {
         let temp_dir = tempdir().expect("Failed to create temp dir");
 
         // This should panic because Cargo.toml does not exist in the temp directory
-        read_root_manifest(temp_dir.path());
+        get_root_manifest(temp_dir.path());
     }
 }
