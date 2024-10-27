@@ -5,4 +5,10 @@ edition = "2021"
 
 [dependencies]
 walkdir = "2.5.0"
+argh = "0.1.12"
+
+[dev-dependencies]
 tempfile = "3.13.0"
+assert_fs = "1.1.2"
+predicates = "3.1.2"
+assert_cmd = "2.0.16"
