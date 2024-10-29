@@ -1,11 +1,8 @@
 use std::path::{Path};
 use walkdir::WalkDir;
-use serde::Deserialize;
-use crate::manifest_collector::nested_types::ManifestFinding;
+use crate::manifest_types::nested::{ManifestFinding, ManifestFindings};
 use crate::manifest_collector::reader::load_cargo_toml_content;
 
-
-pub type ManifestFindings = Vec<ManifestFinding>;
 
 pub fn collect_manifests(workspace_dir: &Path) -> ManifestFindings {
     let mut packages = Vec::new();

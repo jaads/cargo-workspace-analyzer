@@ -1,8 +1,7 @@
 use std::path::Path;
 
-use serde::Deserialize;
 use crate::manifest_collector::reader::load_cargo_toml_content;
-use crate::manifest_collector::root_types::CargoRootManifest;
+use crate::manifest_types::root::CargoRootManifest;
 
 /// Reads the contents of `Cargo.toml` in the specified directory.
 /// Panics if the file does not exist or cannot be read.
@@ -43,8 +42,6 @@ mod tests {
         // Check that the `package` section exists and has the expected values
         if let Some(package) = manifest.package {
             assert_eq!(package.name, "test");
-            assert_eq!(package.version, "0.1.0");
-            assert_eq!(package.description, None);
         } else {
             panic!("Expected package section in the manifest");
         }

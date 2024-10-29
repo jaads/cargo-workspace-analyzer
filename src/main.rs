@@ -3,12 +3,15 @@
 
 use std::path::Path;
 use crate::arguments::get_args;
+use crate::diagram::generate_dependency_diagram;
 use crate::manifest_collector::get_manifests;
 use crate::package_count::count_packages;
 
 mod package_count;
 mod arguments;
 mod manifest_collector;
+mod diagram;
+mod manifest_types;
 
 fn main() {
     let args = get_args();
@@ -19,5 +22,9 @@ fn main() {
 
     // inspect manifests
     let (root, nested) = get_manifests(Path::new(&args.workspace_dir));
+
+    let diagram = generate_dependency_diagram(root, nested);
+
+    println!("{}", diagram);
 }
 
