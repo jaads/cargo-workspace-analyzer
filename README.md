@@ -57,6 +57,8 @@ graph TD
 
 ## Package Count
 
+It will also display the amount of packages in your workspace.
+
 ## Roadmap
 
 Regarding features this is still in early stage. A lot can and will be analyzed in the future. The following is
