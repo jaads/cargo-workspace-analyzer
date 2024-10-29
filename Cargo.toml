@@ -1,12 +1,11 @@
 [package]
 name = "cargo-workspace-analyzer"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 authors = ["Jan Arends <kontakt@jaads.de>"]
-description = "A CLI tool that counts the amount of packages in a cargo workspace"
+description = "A CLI tool that prases manifest files and gives insights about the workspace"
 license = "GPL-3.0-only"
 repository = "https://github.com/jaads/cargo-workspace-analyzer"
-homepage = "https://github.com/jaads/cargo-workspace-analyzer"
 keywords = ["cargo", "workspace", "pacakges", "analyzer"]
 categories = ["command-line-utilities", "development-tools", "filesystem"]
 readme = "README.md"
