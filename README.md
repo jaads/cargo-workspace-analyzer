@@ -7,7 +7,7 @@ supported:
 - count the number of packages within a workspace
 - create a [Mermaid](https://mermaid.js.org/) diagram to show how packages depend on each other
 
-## How to use
+## Installation
 
 Install it globally:
 
@@ -30,6 +30,25 @@ or use an argument to specify the location of the workspace.
  ```
 
 For further details, use `cargo-workspace-analyzer --help`
+
+## Dependency analysis
+
+After running the analyzer, an [Mermaid](https://mermaid.js.org/)  diagram is printed.
+
+```shell
+graph TD
+    service-1 --> db-connector
+    API --> service-2
+    API --> service-1
+    service-2 --> db-connector
+```
+
+You can copy it and paste it in the [Mermaid Live](https://mermaid.live/) editor. It will give you the diagram.
+
+<img src="https://www.mermaidchart.com/raw/4a0accd0-450c-4d4c-b602-13dd0000449d?theme=light&version=v0.1&format=svg&format=svg" alt="component-diagram">
+
+
+## Package Count
 
 ## Roadmap
 
