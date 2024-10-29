@@ -45,8 +45,15 @@ graph TD
 
 You can copy it and paste it in the [Mermaid Live](https://mermaid.live/) editor. It will give you the diagram.
 
-<img src="https://www.mermaidchart.com/raw/4a0accd0-450c-4d4c-b602-13dd0000449d?theme=light&version=v0.1&format=svg&format=svg" alt="component-diagram">
+```mermaid
+graph TD
+    service-1 --> db-connector
+    API --> service-2
+    API --> service-1
+    service-2 --> db-connector
+```
 
+[//]: # (<img src="https://www.mermaidchart.com/raw/4a0accd0-450c-4d4c-b602-13dd0000449d?theme=light&version=v0.1&format=svg&format=svg" alt="component-diagram">)
 
 ## Package Count
 
