@@ -12,6 +12,7 @@ mod arguments;
 mod manifest_collector;
 mod diagram;
 mod manifest_types;
+mod circular_deps_finder;
 
 fn main() {
     let args = get_args();
