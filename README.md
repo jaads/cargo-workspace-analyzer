@@ -35,7 +35,7 @@ For further details, use `cargo-workspace-analyzer --help`
 
 After running the analyzer, an [Mermaid](https://mermaid.js.org/)  diagram is printed.
 
-```shell
+```
 graph TD
     service-1 --> db-connector
     API --> service-2
@@ -65,6 +65,7 @@ Regarding features this is still in early stage. A lot can and will be analyzed 
 currently planed:
 
 - [x] show how packages are related to each other
+- [x] notice circular dependencies
+- [ ] render diagram and save a PNG file to disc
 - [ ] notice dependencies which are used in multiple packages, but not declared as workspace dependency
-- [ ] notice circular dependencies
 - [ ] ability to specify layers for the diagram
