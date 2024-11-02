@@ -4,14 +4,14 @@
 use std::path::Path;
 use crate::arguments::get_args;
 use crate::circular_deps_finder::highlight_cycles_in_mermaid;
-use crate::diagram::generate_dependency_diagram;
+use crate::diagram_creation::generate_dependency_diagram;
 use crate::manifest_collector::get_manifests;
 use crate::package_count::count_packages;
 
 mod package_count;
 mod arguments;
 mod manifest_collector;
-mod diagram;
+mod diagram_creation;
 mod manifest_types;
 mod circular_deps_finder;
 

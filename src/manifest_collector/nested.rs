@@ -59,7 +59,7 @@ mod tests {
         package3.child("Cargo.toml").write_str("[package]\nname = \"package3\"").unwrap();
 
         // Run the function and declare it as mutable for sorting
-        let mut packages = collect_manifests(temp_dir.path());
+        let packages = collect_manifests(temp_dir.path());
 
         // Verify that 3 packages were collected
         assert_eq!(packages.len(), 3, "Expected 3 packages to be found");
