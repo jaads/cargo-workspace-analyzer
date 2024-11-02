@@ -3,6 +3,7 @@
 
 use std::path::Path;
 use crate::arguments::get_args;
+use crate::circular_deps_finder::highlight_cycles_in_mermaid;
 use crate::diagram::generate_dependency_diagram;
 use crate::manifest_collector::get_manifests;
 use crate::package_count::count_packages;
@@ -26,6 +27,8 @@ fn main() {
 
     let diagram = generate_dependency_diagram(root, nested);
 
-    println!("{}", diagram);
+    let result = highlight_cycles_in_mermaid(&diagram);
+
+    println!("{}", result);
 }
 

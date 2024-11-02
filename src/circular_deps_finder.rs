@@ -33,7 +33,6 @@ impl Graph {
                 self.dfs(node, &mut visited, &mut stack, &mut path, &mut cycle_edges);
             }
         }
-        println!("Detected cycle edges: {:?}", cycle_edges);  // Debug print
         cycle_edges
     }
 
@@ -78,9 +77,8 @@ impl Graph {
     }
 }
 
-
 /// Checks a Mermaid diagram string for circular dependencies and marks cycles in red.
-fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
+pub fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
     let mut graph = Graph::new();
     let mut edges = Vec::new();
 
@@ -95,8 +93,10 @@ fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
     // Detect cycles
     let cycle_edges = graph.detect_cycles();
 
+    // Start the output with "graph TD"
+    let mut highlighted_diagram = String::from("graph TD\n");
+
     // Modify the mermaid string to highlight cycles in red
-    let mut highlighted_diagram = String::new();
     for (from, to, original_line) in edges {
         if cycle_edges.contains(&(from.clone(), to.clone())) {
             // Modify the line to mark the edge as red
@@ -112,6 +112,7 @@ fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
 
     highlighted_diagram
 }
+
 
 /// Parses a line for an edge in a Mermaid diagram of the form `A --> B`.
 fn parse_edge(line: &str) -> Option<(String, String)> {
@@ -151,7 +152,6 @@ mod tests {
         "#;
 
         let result = highlight_cycles_in_mermaid(mermaid_diagram);
-        println!("{}", result);
 
         // Expecting red highlights on all edges that form a cycle
         assert!(result.contains("A --> B:::red"));
