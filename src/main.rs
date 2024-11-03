@@ -31,13 +31,16 @@ fn main() {
     let diagram = generate_dependency_diagram(root, nested);
     let result = highlight_cycles_in_mermaid(&diagram);
 
-    // write to file
-    let output_path = "diagram_output.png";
-    match generate_mermaid_png(&result, output_path) {
-        Ok(_) => println!("Diagram rendered successfully."),
-        Err(e) => eprintln!("Failed to render diagram: {}", e),
-    }
 
-    println!("{}", result);
+    if args.save_to_file {
+        // write to file
+        let output_path = "diagram_output.png";
+        match generate_mermaid_png(&result, output_path) {
+            Ok(_) => println!("Diagram rendered successfully."),
+            Err(e) => eprintln!("Failed to render diagram: {}", e),
+        }
+    } else {
+        println!("{}", result);
+    }
 }
 

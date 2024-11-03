@@ -7,6 +7,10 @@ pub struct Arguments {
     /// Defaults to the current working directory.
     #[argh(option, default = "\".\".to_string()")]
     pub workspace_dir: String,
+
+    /// enable verbose output
+    #[argh(switch)]
+    pub save_to_file: bool,
 }
 
 pub fn get_args() -> Arguments {
