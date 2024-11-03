@@ -24,21 +24,17 @@ fn main() {
     let amount_of_packages = count_packages(&args.workspace_dir);
     println!("Number of packages in workspace: {}", amount_of_packages);
 
-    // inspect manifests
+    // load manifests
     let (root, nested) = get_manifests(Path::new(&args.workspace_dir));
 
-    // create mermaid diagram in syntax
+    // create mermaid diagram as text
     let diagram = generate_dependency_diagram(root, nested);
     let result = highlight_cycles_in_mermaid(&diagram);
 
-
+    // save to file if needed
     if args.save_to_file {
-        // write to file
         let output_path = "diagram_output.png";
-        match generate_mermaid_png(&result, output_path) {
-            Ok(_) => println!("Diagram rendered successfully."),
-            Err(e) => eprintln!("Failed to render diagram: {}", e),
-        }
+        generate_mermaid_png(&result, output_path);
     } else {
         println!("{}", result);
     }
