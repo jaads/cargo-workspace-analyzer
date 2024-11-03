@@ -4,18 +4,18 @@
 use std::path::Path;
 use crate::arguments::get_args;
 use crate::circular_deps_finder::highlight_cycles_in_mermaid;
-use crate::diagram_creation::generate_dependency_diagram;
+use crate::diagram_generator::generate_dependency_diagram;
 use crate::manifest_collector::get_manifests;
-use crate::package_count::count_packages;
-use crate::save_to_disk::generate_mermaid_png;
+use crate::package_counter::count_packages;
+use crate::exporter::generate_mermaid_png;
 
-mod package_count;
+mod package_counter;
 mod arguments;
 mod manifest_collector;
-mod diagram_creation;
+mod diagram_generator;
 mod manifest_types;
 mod circular_deps_finder;
-mod save_to_disk;
+mod exporter;
 
 fn main() {
     let args = get_args();
