@@ -7,6 +7,21 @@ use std::process::Command;
 /// - `mermaid_code` is the Mermaid diagram as a string.
 /// - `output_path` is the path where the PNG should be saved.
 pub fn generate_mermaid_png(mermaid_code: &str, output_path: &str) -> io::Result<()> {
+
+    // Check if `mmdc` is installed
+    if !is_mermaid_cli_installed() {
+        eprintln!(
+            "Error: Mermaid CLI (`mmdc`) is not installed. \
+             Please install it by running `npm install -g @mermaid-js/mermaid-cli`."
+        );
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            "Mermaid CLI (`mmdc`) not found",
+        ));
+    }
+
+    println!("Generating mermaid-png...");
+
     let input_path = "temp_diagram.mmd";
 
     // Write the Mermaid code to a temporary file
@@ -20,6 +35,14 @@ pub fn generate_mermaid_png(mermaid_code: &str, output_path: &str) -> io::Result
     Ok(())
 }
 
+/// Checks if the `mmdc` command (Mermaid CLI) is available.
+fn is_mermaid_cli_installed() -> bool {
+    Command::new("mmdc")
+        .arg("--version")
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
+}
 
 /// Writes the Mermaid diagram code to a temporary `.mmd` file.
 fn write_mermaid_code_to_file(mermaid_code: &str, file_path: &str) -> io::Result<()> {
