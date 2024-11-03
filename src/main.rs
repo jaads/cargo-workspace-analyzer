@@ -7,6 +7,7 @@ use crate::circular_deps_finder::highlight_cycles_in_mermaid;
 use crate::diagram_creation::generate_dependency_diagram;
 use crate::manifest_collector::get_manifests;
 use crate::package_count::count_packages;
+use crate::save_to_disk::generate_mermaid_png;
 
 mod package_count;
 mod arguments;
@@ -14,6 +15,7 @@ mod manifest_collector;
 mod diagram_creation;
 mod manifest_types;
 mod circular_deps_finder;
+mod save_to_disk;
 
 fn main() {
     let args = get_args();
@@ -25,9 +27,16 @@ fn main() {
     // inspect manifests
     let (root, nested) = get_manifests(Path::new(&args.workspace_dir));
 
+    // create mermaid diagram in syntax
     let diagram = generate_dependency_diagram(root, nested);
-
     let result = highlight_cycles_in_mermaid(&diagram);
+
+    // write to file
+    let output_path = "diagram_output.png";
+    match generate_mermaid_png(&result, output_path) {
+        Ok(_) => println!("Diagram rendered successfully."),
+        Err(e) => eprintln!("Failed to render diagram: {}", e),
+    }
 
     println!("{}", result);
 }
