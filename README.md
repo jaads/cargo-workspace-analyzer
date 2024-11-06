@@ -22,10 +22,9 @@ Then navigate to a Cargo workspace and run the tool:
  cargo-workspace-analyzer
  ```
 
-or use an argument to specify the location of the workspace.
+Or use an argument to specify the location of the workspace and run it from where ever you want.
 
  ```sh
- cd path/to/your/workspace
  cargo-workspace-analyzer --working-dir /path/to/your/workspace
  ```
 
@@ -66,6 +65,6 @@ currently planed:
 
 - [x] show how packages are related to each other
 - [x] notice circular dependencies
-- [ ] render diagram and save a PNG file to disc
+- [x] render diagram and save a PNG file to disc
 - [ ] notice dependencies which are used in multiple packages, but not declared as workspace dependency
 - [ ] ability to specify layers for the diagram

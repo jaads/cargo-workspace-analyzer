@@ -8,7 +8,8 @@ pub struct Arguments {
     #[argh(option, default = "\".\".to_string()")]
     pub workspace_dir: String,
 
-    /// enable verbose output
+    /// renders the diagram and stores it to a PNG file in the current working directory.
+    /// Default is false.
     #[argh(switch)]
     pub save_to_file: bool,
 }
