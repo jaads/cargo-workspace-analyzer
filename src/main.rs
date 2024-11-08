@@ -33,8 +33,7 @@ fn main() {
 
     // save to file if needed
     if args.save_to_file {
-        let output_path = "diagram_output.png";
-        generate_mermaid_png(&result, output_path);
+        generate_mermaid_png(&result);
     } else {
         println!("{}", result);
     }
