@@ -11,7 +11,7 @@ pub struct Arguments {
     /// renders the diagram and stores it to a PNG file in the current working directory.
     /// Default is false.
     #[argh(switch)]
-    pub save_to_file: bool,
+    pub no_file: bool,
 }
 
 pub fn get_args() -> Arguments {

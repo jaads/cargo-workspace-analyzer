@@ -4,7 +4,7 @@ A CLI tool which provides insights about
 a [Cargo workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html). Currently, the following is
 supported.
 
-## Workspace visualization
+## Workspace Visualization
 
 It visualizes the workspace with a [Mermaid](https://mermaid.js.org/) diagram. That way the user can see how packages
 depend on each other may identify layers of the application. As an example, here is the resulting diagram a randomly
@@ -21,22 +21,18 @@ graph TD
     service-2 --> db-connector
 ```
 
+## Circular Dependency Detection
+
+This analyzer finds circular dependencies. It highlights those packages, which form a circle. By running the analyzer
+regularly, one can detect circular dependencies before they get hard if not impossible to resolve later on.
+See
+this [example](https://www.mermaidchart.com/raw/35c87214-1aea-46a9-b633-8fd3bd4f90ad?theme=light&version=v0.1&format=svg).
+
 ## Package Count
 
 It will also display the amount of packages in your workspace.
 
-## Roadmap
-
-Regarding features this is still in early stage. A lot can and will be analyzed in the future. The following is
-currently planed:
-
-- [x] show how packages are related to each other
-- [x] notice circular dependencies
-- [x] render diagram and save a PNG file to disc
-- [ ] notice dependencies which are used in multiple packages, but not declared as workspace dependency
-- [ ] ability to specify layers for the diagram
-
-## Installation
+# Installation
 
 Install it globally:
 

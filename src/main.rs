@@ -22,7 +22,7 @@ fn main() {
 
     // count packages
     let amount_of_packages = count_packages(&args.workspace_dir);
-    println!("Number of packages in workspace: {}", amount_of_packages);
+    println!("{} packages in total", amount_of_packages);
 
     // load manifests
     let (root, nested) = get_manifests(Path::new(&args.workspace_dir));
@@ -32,10 +32,10 @@ fn main() {
     let result = highlight_cycles_in_mermaid(&diagram);
 
     // save to file if needed
-    if args.save_to_file {
-        generate_mermaid_png(&result);
-    } else {
+    if args.no_file {
         println!("{}", result);
+    } else {
+        generate_mermaid_png(&result);
     }
 }
 
