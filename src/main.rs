@@ -3,8 +3,7 @@
 
 use std::path::Path;
 use crate::arguments::get_args;
-use crate::circular_deps_finder::highlight_cycles_in_mermaid;
-use crate::diagram_generator::generate_dependency_diagram;
+use crate::diagram::{create_diagram};
 use crate::manifest_collector::get_manifests;
 use crate::package_counter::count_packages;
 use crate::exporter::generate_mermaid_png;
@@ -12,10 +11,9 @@ use crate::exporter::generate_mermaid_png;
 mod package_counter;
 mod arguments;
 mod manifest_collector;
-mod diagram_generator;
 mod manifest_types;
-mod circular_deps_finder;
 mod exporter;
+mod diagram;
 
 fn main() {
     let args = get_args();
@@ -27,9 +25,8 @@ fn main() {
     // load manifests
     let (root, nested) = get_manifests(Path::new(&args.directory));
 
-    // create mermaid diagram as text
-    let diagram = generate_dependency_diagram(root, nested);
-    let result = highlight_cycles_in_mermaid(&diagram);
+    // create diagram, incl. highlights of circular deps
+    let result = create_diagram(root,nested);
 
     // save to file if needed
     if args.no_file {

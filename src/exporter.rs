@@ -10,7 +10,7 @@ const OUTPUT_PATH: &str = "workspace-analyzer.svg";
 /// - `output_path` is the path where the PNG should be saved.
 pub fn generate_mermaid_png(mermaid_code: &str) {
     verify_mmdc_installation();
-    println!("Generating mermaid-png...");
+    println!("Generating mermaid SVG...");
     write_mermaid_code_to_file(mermaid_code, INPUT_PATH);
     render_mermaid_to_png(INPUT_PATH);
     if let Err(e) = std::fs::remove_file(INPUT_PATH) {
