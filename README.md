@@ -39,7 +39,13 @@ Install it globally:
  ```sh
  cargo install cargo-workspace-analyzer
  ```
+To render the Mermaid diagram and store it so disk (which is the default behaviour), you would need to have the [Mermaid CLI](https://github.com/mermaid-js/mermaid-cli) installed as well, which run on Node.js.
+ 
+```sh
+npm install -g @mermaid-js/mermaid-cli
+ ```
 
+# Usage
 Then navigate to a Cargo workspace and run the tool:
 
  ```sh
