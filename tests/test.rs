@@ -27,7 +27,7 @@ fn test_custom_workspace_dir() {
     // Run the command with --workspace-dir set to the custom directory
     Command::cargo_bin("cargo-workspace-analyzer") // replace with the actual binary name if different
         .unwrap()
-        .arg("--workspace-dir")
+        .arg("--directory")
         .arg(custom_dir.path())
         .assert()
         .success();

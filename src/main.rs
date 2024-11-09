@@ -21,11 +21,11 @@ fn main() {
     let args = get_args();
 
     // count packages
-    let amount_of_packages = count_packages(&args.workspace_dir);
+    let amount_of_packages = count_packages(&args.directory);
     println!("{} packages in total", amount_of_packages);
 
     // load manifests
-    let (root, nested) = get_manifests(Path::new(&args.workspace_dir));
+    let (root, nested) = get_manifests(Path::new(&args.directory));
 
     // create mermaid diagram as text
     let diagram = generate_dependency_diagram(root, nested);
