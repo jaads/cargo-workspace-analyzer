@@ -18,4 +18,3 @@ pub fn get_args() -> Arguments {
     let args: Arguments = argh::from_env();
     args
 }
-

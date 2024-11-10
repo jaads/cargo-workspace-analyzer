@@ -14,7 +14,6 @@ impl Default for Package {
     }
 }
 
-
 /// Workspace dependency is very similar to package dependencies except.
 /// They differ regarding `optional` and how features are handled.
 /// The parts which are inspected current are in both cases the same.
@@ -22,7 +21,5 @@ impl Default for Package {
 #[serde(untagged)]
 pub enum Dependency {
     Simple(String),
-    Detailed {
-        path: Option<String>,
-    },
+    Detailed { path: Option<String> },
 }

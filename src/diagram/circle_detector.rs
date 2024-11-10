@@ -1,6 +1,5 @@
 use crate::diagram::graph::Graph;
 
-
 /// Checks a Mermaid diagram string for circular dependencies and marks cycles in red.
 pub fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
     let mut graph = Graph::new();
@@ -36,7 +35,6 @@ pub fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
 
     highlighted_diagram
 }
-
 
 /// Parses a line for an edge in a Mermaid diagram of the form `A --> B`.
 fn parse_edge(line: &str) -> Option<(String, String)> {

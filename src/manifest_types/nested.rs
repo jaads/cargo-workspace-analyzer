@@ -1,7 +1,7 @@
+use crate::manifest_types::commons::{Dependency, Package};
+use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use serde::Deserialize;
-use crate::manifest_types::commons::{Dependency, Package};
 
 /// The Cargo.toml file aka. the manifest from a package.
 #[derive(Deserialize, Debug)]

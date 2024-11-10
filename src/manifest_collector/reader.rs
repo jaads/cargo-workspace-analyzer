@@ -1,6 +1,6 @@
+use serde::de::DeserializeOwned;
 use std::fs;
 use std::path::Path;
-use serde::de::DeserializeOwned;
 
 pub fn load_cargo_toml_content<T>(path: &Path) -> Option<T>
 where
@@ -24,5 +24,3 @@ where
         }
     }
 }
-
-

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use crate::manifest_types::nested::{ManifestFindings};
+use crate::manifest_types::nested::ManifestFindings;
 use crate::manifest_types::root::CargoRootManifest;
+use std::collections::HashMap;
 
 // Function to generate the component diagram in Mermaid format
 pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFindings) -> String {
@@ -94,27 +94,38 @@ pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFind
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
     use crate::manifest_types::commons::{Dependency, Package};
     use crate::manifest_types::nested::{Manifest, ManifestFinding};
+    use std::path::PathBuf;
 
     fn setup_manifest(name: &str, dependencies: Vec<&str>) -> ManifestFinding {
-        let dependency_map: HashMap<String, Dependency> = dependencies.into_iter().map(|dep| (dep.to_string(), Dependency::Simple("1.0".to_string()))).collect();
+        let dependency_map: HashMap<String, Dependency> = dependencies
+            .into_iter()
+            .map(|dep| (dep.to_string(), Dependency::Simple("1.0".to_string())))
+            .collect();
         ManifestFinding {
             path: PathBuf::from(name),
             manifest: Manifest {
-                package: Package { name: name.to_string() },
-                dependencies: if dependency_map.is_empty() { None } else { Some(dependency_map) },
+                package: Package {
+                    name: name.to_string(),
+                },
+                dependencies: if dependency_map.is_empty() {
+                    None
+                } else {
+                    Some(dependency_map)
+                },
             },
         }
     }
-
 
     #[test]
     fn test_single_package_no_dependencies() {
         // Single package, no dependencies
         let root_manifest = CargoRootManifest {
-            package: Some(Package { name: "root_package".to_string(), ..Default::default() }),
+            package: Some(Package {
+                name: "root_package".to_string(),
+                ..Default::default()
+            }),
             workspace: None,
             dependencies: None,
             dev_dependencies: None,
@@ -132,8 +143,18 @@ mod tests {
     fn test_linear_dependencies() {
         // root_package --> package_a --> package_b
         let root_manifest = CargoRootManifest {
-            package: Some(Package { name: "root_package".to_string(), ..Default::default() }),
-            dependencies: Some([("package_a".to_string(), Dependency::Simple("1.0".to_string()))].into_iter().collect()),
+            package: Some(Package {
+                name: "root_package".to_string(),
+                ..Default::default()
+            }),
+            dependencies: Some(
+                [(
+                    "package_a".to_string(),
+                    Dependency::Simple("1.0".to_string()),
+                )]
+                .into_iter()
+                .collect(),
+            ),
             ..Default::default()
         };
 
@@ -151,11 +172,24 @@ mod tests {
     fn test_complex_dependencies() {
         // root_package depends on package_a and package_b; package_a depends on package_b
         let root_manifest = CargoRootManifest {
-            package: Some(Package { name: "root_package".to_string(), ..Default::default() }),
-            dependencies: Some([
-                ("package_a".to_string(), Dependency::Simple("1.0".to_string())),
-                ("package_b".to_string(), Dependency::Simple("1.0".to_string())),
-            ].into_iter().collect()),
+            package: Some(Package {
+                name: "root_package".to_string(),
+                ..Default::default()
+            }),
+            dependencies: Some(
+                [
+                    (
+                        "package_a".to_string(),
+                        Dependency::Simple("1.0".to_string()),
+                    ),
+                    (
+                        "package_b".to_string(),
+                        Dependency::Simple("1.0".to_string()),
+                    ),
+                ]
+                .into_iter()
+                .collect(),
+            ),
             ..Default::default()
         };
 

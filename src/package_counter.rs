@@ -3,7 +3,10 @@ use walkdir::WalkDir;
 pub fn count_packages(workspace_dir: &str) -> usize {
     let mut package_count = 0;
 
-    for entry in WalkDir::new(workspace_dir).into_iter().filter_map(|e| e.ok()) {
+    for entry in WalkDir::new(workspace_dir)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
         let path = entry.path();
 
         if path.is_dir() {
@@ -27,7 +30,6 @@ mod tests {
     use std::path::Path;
     use tempfile::tempdir;
 
-
     #[test]
     fn test_count_rust_packages() {
         // Create a temporary directory for our test workspace
@@ -38,8 +40,11 @@ mod tests {
         fn create_package(path: &Path) {
             let src_dir = path.join("src");
             fs::create_dir_all(&src_dir).expect("Failed to create src directory");
-            fs::write(path.join("Cargo.toml"), b"[package]\nname = \"test_package\"")
-                .expect("Failed to create Cargo.toml");
+            fs::write(
+                path.join("Cargo.toml"),
+                b"[package]\nname = \"test_package\"",
+            )
+            .expect("Failed to create Cargo.toml");
         }
 
         // Set up test directories

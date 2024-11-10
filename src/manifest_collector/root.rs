@@ -20,13 +20,12 @@ pub fn get_root_manifest(dir: &Path) -> CargoRootManifest {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::{tempdir, TempDir};
     use std::fs::File;
     use std::io::Write;
+    use tempfile::{tempdir, TempDir};
 
     #[test]
     fn test_read_cargo_toml_success() {
@@ -36,7 +35,8 @@ mod tests {
         // Write a dummy Cargo.toml file
         let cargo_toml_path = temp_dir.path().join("Cargo.toml");
         let mut file = File::create(&cargo_toml_path).expect("Failed to create Cargo.toml");
-        writeln!(file, "[workspace]\nmembers = [\"package1\"]\n").expect("Failed to write to Cargo.toml");
+        writeln!(file, "[workspace]\nmembers = [\"package1\"]\n")
+            .expect("Failed to write to Cargo.toml");
 
         // Test that the function reads the file correctly
         // Pass the full path to Cargo.toml to get_root_manifest

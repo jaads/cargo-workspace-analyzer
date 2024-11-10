@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde::Deserialize;
 use crate::manifest_types::commons::{Dependency, Package};
+use serde::Deserialize;
+use std::collections::HashMap;
 
 /// The "virtual" manifest
 #[derive(Deserialize, Debug)]
@@ -30,4 +30,3 @@ impl Default for CargoRootManifest {
         }
     }
 }
-

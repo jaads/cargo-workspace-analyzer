@@ -26,7 +26,6 @@ fn verify_mmdc_installation() {
         .map(|output| output.status.success())
         .unwrap_or(false);
 
-
     if !is_installed {
         eprintln!(
             "Error: Mermaid CLI (`mmdc`) is not installed. \
@@ -37,11 +36,11 @@ fn verify_mmdc_installation() {
     }
 }
 
-
 /// Writes the Mermaid diagram code to a temporary `.mmd` file.
 fn write_mermaid_code_to_file(mermaid_code: &str, file_path: &str) {
     let mut file = File::create(file_path).expect("Unable to create temp file.");
-    file.write_all(mermaid_code.as_bytes()).expect("Unable to write to temp file.");
+    file.write_all(mermaid_code.as_bytes())
+        .expect("Unable to write to temp file.");
     println!("Mermaid code written to {}", file_path);
 }
 
@@ -66,5 +65,3 @@ fn render_mermaid_to_png(input_path: &str) {
         );
     }
 }
-
-

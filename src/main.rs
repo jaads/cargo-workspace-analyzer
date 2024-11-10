@@ -1,19 +1,19 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
-use std::path::Path;
 use crate::arguments::get_args;
-use crate::diagram::{create_diagram};
+use crate::diagram::create_diagram;
+use crate::exporter::generate_mermaid_png;
 use crate::manifest_collector::get_manifests;
 use crate::package_counter::count_packages;
-use crate::exporter::generate_mermaid_png;
+use std::path::Path;
 
-mod package_counter;
 mod arguments;
+mod diagram;
+mod exporter;
 mod manifest_collector;
 mod manifest_types;
-mod exporter;
-mod diagram;
+mod package_counter;
 
 fn main() {
     let args = get_args();
@@ -26,7 +26,7 @@ fn main() {
     let (root, nested) = get_manifests(Path::new(&args.directory));
 
     // create diagram, incl. highlights of circular deps
-    let result = create_diagram(root,nested);
+    let result = create_diagram(root, nested);
 
     // save to file if needed
     if args.no_file {
@@ -35,4 +35,3 @@ fn main() {
         generate_mermaid_png(&result);
     }
 }
-
