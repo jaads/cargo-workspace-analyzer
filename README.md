@@ -1,4 +1,5 @@
 # Cargo Workspace Analyzer
+<img src="banner.png">
 
 A CLI tool which provides insights about
 a [Cargo workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html). Currently, the following is
