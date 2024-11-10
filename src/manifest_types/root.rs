@@ -1,4 +1,4 @@
-use crate::manifest_types::commons::{Dependency, Package};
+use crate::manifest_types::commons::{DependencyInfo, Package};
 use serde::Deserialize;
 use std::collections::HashMap;
 
@@ -7,9 +7,9 @@ use std::collections::HashMap;
 pub struct CargoRootManifest {
     pub workspace: Option<Workspace>,
     pub package: Option<Package>,
-    pub dependencies: Option<HashMap<String, Dependency>>,
-    pub dev_dependencies: Option<HashMap<String, Dependency>>,
-    pub build_dependencies: Option<HashMap<String, Dependency>>,
+    pub dependencies: Option<HashMap<String, DependencyInfo>>,
+    pub dev_dependencies: Option<HashMap<String, DependencyInfo>>,
+    pub build_dependencies: Option<HashMap<String, DependencyInfo>>,
 }
 
 #[derive(Deserialize, Debug)]

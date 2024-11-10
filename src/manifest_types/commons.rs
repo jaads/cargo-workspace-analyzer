@@ -11,7 +11,12 @@ pub struct Package {
 /// The parts which are inspected current are in both cases the same.
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
-pub enum Dependency {
-    Simple(String),
-    Detailed { path: Option<String> },
+pub enum DependencyInfo {
+    Simple(Version),
+    Detailed {
+        path: Option<String>,
+        workspace: Option<bool>,
+    },
 }
+
+type Version = String;

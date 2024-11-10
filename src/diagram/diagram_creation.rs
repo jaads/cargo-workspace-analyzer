@@ -94,14 +94,14 @@ pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFind
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::manifest_types::commons::{Dependency, Package};
+    use crate::manifest_types::commons::{DependencyInfo, Package};
     use crate::manifest_types::nested::{Manifest, ManifestFinding};
     use std::path::PathBuf;
 
     fn setup_manifest(name: &str, dependencies: Vec<&str>) -> ManifestFinding {
-        let dependency_map: HashMap<String, Dependency> = dependencies
+        let dependency_map: HashMap<String, DependencyInfo> = dependencies
             .into_iter()
-            .map(|dep| (dep.to_string(), Dependency::Simple("1.0".to_string())))
+            .map(|dep| (dep.to_string(), DependencyInfo::Simple("1.0".to_string())))
             .collect();
         ManifestFinding {
             path: PathBuf::from(name),
@@ -148,7 +148,7 @@ mod tests {
             dependencies: Some(
                 [(
                     "package_a".to_string(),
-                    Dependency::Simple("1.0".to_string()),
+                    DependencyInfo::Simple("1.0".to_string()),
                 )]
                 .into_iter()
                 .collect(),
@@ -177,11 +177,11 @@ mod tests {
                 [
                     (
                         "package_a".to_string(),
-                        Dependency::Simple("1.0".to_string()),
+                        DependencyInfo::Simple("1.0".to_string()),
                     ),
                     (
                         "package_b".to_string(),
-                        Dependency::Simple("1.0".to_string()),
+                        DependencyInfo::Simple("1.0".to_string()),
                     ),
                 ]
                 .into_iter()
