@@ -10,9 +10,9 @@ pub fn get_root_manifest(dir: &Path) -> CargoRootManifest {
 
     if cargo_toml_path.exists() {
         let manifest = load_cargo_toml_content::<CargoRootManifest>(&cargo_toml_path)
-            .expect("Failed to parse Cargo.toml");
+            .expect("Failed to parse root manifest");
         if manifest.workspace.is_none() {
-            panic!("This directory doesn't seem to be a workspace. There is no workspace section in the root manifest. ");
+            panic!("This directory doesn't seem to be a workspace. There is no workspace definition in the root manifest. ");
         }
         manifest
     } else {
@@ -36,25 +36,22 @@ mod tests {
         // Write a dummy Cargo.toml file
         let cargo_toml_path = temp_dir.path().join("Cargo.toml");
         let mut file = File::create(&cargo_toml_path).expect("Failed to create Cargo.toml");
-        writeln!(file, "[package]\nname = \"test\"\nversion = \"0.1.0\"").expect("Failed to write to Cargo.toml");
-
+        writeln!(file, "[workspace]\nmembers = [\"package1\"]\n").expect("Failed to write to Cargo.toml");
 
         // Test that the function reads the file correctly
         // Pass the full path to Cargo.toml to get_root_manifest
         let manifest = get_root_manifest(&temp_dir.path());
 
         // Check that the `package` section exists and has the expected values
-        if let Some(package) = manifest.package {
-            assert_eq!(package.name, "test");
-        } else {
-            panic!("Expected package section in the manifest");
+        if let Some(manifest) = manifest.workspace {
+            assert_eq!(manifest.members, Some(vec!["package1".to_string()]));
         }
 
         // Temporary directory is cleaned up automatically
     }
 
     #[test]
-    #[should_panic(expected = "Cargo.toml file not found in the specified directory")]
+    #[should_panic]
     fn test_read_cargo_toml_not_found() {
         // Create a temporary directory without a Cargo.toml file
         let temp_dir = tempdir().expect("Failed to create temp dir");

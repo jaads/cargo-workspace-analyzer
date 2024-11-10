@@ -5,8 +5,8 @@ use crate::manifest_types::commons::{Dependency, Package};
 /// The "virtual" manifest
 #[derive(Deserialize, Debug)]
 pub struct CargoRootManifest {
-    pub package: Option<Package>,
     pub workspace: Option<Workspace>,
+    pub package: Option<Package>,
     pub dependencies: Option<HashMap<String, Dependency>>,
     pub dev_dependencies: Option<HashMap<String, Dependency>>,
     pub build_dependencies: Option<HashMap<String, Dependency>>,
