@@ -124,7 +124,6 @@ mod tests {
         let root_manifest = CargoRootManifest {
             package: Some(Package {
                 name: "root_package".to_string(),
-                ..Default::default()
             }),
             workspace: None,
             dependencies: None,
@@ -145,7 +144,6 @@ mod tests {
         let root_manifest = CargoRootManifest {
             package: Some(Package {
                 name: "root_package".to_string(),
-                ..Default::default()
             }),
             dependencies: Some(
                 [(
@@ -174,7 +172,6 @@ mod tests {
         let root_manifest = CargoRootManifest {
             package: Some(Package {
                 name: "root_package".to_string(),
-                ..Default::default()
             }),
             dependencies: Some(
                 [
