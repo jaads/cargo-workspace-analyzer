@@ -9,10 +9,14 @@ pub fn get_root_manifest(dir: &Path) -> CargoRootManifest {
     let cargo_toml_path = dir.join("Cargo.toml");
 
     if cargo_toml_path.exists() {
-        load_cargo_toml_content::<CargoRootManifest>(&cargo_toml_path)
-            .expect("Failed to parse Cargo.toml")
+        let manifest = load_cargo_toml_content::<CargoRootManifest>(&cargo_toml_path)
+            .expect("Failed to parse Cargo.toml");
+        if manifest.workspace.is_none() {
+            panic!("This directory doesn't seem to be a workspace. There is no workspace section in the root manifest. ");
+        }
+        manifest
     } else {
-        panic!("Cargo.toml file not found in the specified directory");
+        panic!("No Cargo.toml file found in the specified directory");
     }
 }
 
