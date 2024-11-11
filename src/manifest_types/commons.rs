@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::collections::HashMap;
 
 /// Both, the root and the nested manifest must have a `name` attribute.
 #[derive(Deserialize, Debug)]
@@ -19,4 +20,7 @@ pub enum DependencyInfo {
     },
 }
 
+pub type Dependencies = HashMap<Name, DependencyInfo>;
+
 type Version = String;
+type Name = String;

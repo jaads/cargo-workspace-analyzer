@@ -1,15 +1,14 @@
-use crate::manifest_types::commons::{DependencyInfo, Package};
+use crate::manifest_types::commons::{Dependencies, Package};
 use serde::Deserialize;
-use std::collections::HashMap;
 
 /// The "virtual" manifest
 #[derive(Deserialize, Debug)]
 pub struct CargoRootManifest {
     pub workspace: Option<Workspace>,
     pub package: Option<Package>,
-    pub dependencies: Option<HashMap<String, DependencyInfo>>,
-    pub dev_dependencies: Option<HashMap<String, DependencyInfo>>,
-    pub build_dependencies: Option<HashMap<String, DependencyInfo>>,
+    pub dependencies: Option<Dependencies>,
+    pub dev_dependencies: Option<Dependencies>,
+    pub build_dependencies: Option<Dependencies>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -24,9 +23,9 @@ impl Default for CargoRootManifest {
         CargoRootManifest {
             package: None,
             workspace: None,
-            dependencies: Some(HashMap::new()),
-            dev_dependencies: Some(HashMap::new()),
-            build_dependencies: Some(HashMap::new()),
+            dependencies: None,
+            dev_dependencies: None,
+            build_dependencies: None,
         }
     }
 }
