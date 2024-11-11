@@ -9,22 +9,13 @@ supported.
 It visualizes the workspace with a [Mermaid](https://mermaid.js.org/) diagram. That way the user can see how packages
 depend on each other may identify layers of the application. As an example, here is the resulting diagram a randomly
 selected workspace, [Tauri](https://github.com/tauri-apps/tauri).
-<img src="examples/tauri.svg">
-If you use the `--no-file` argument, the resulting [Mermaid](https://mermaid.js.org/) diagram will be printed to the
-console. You can copy it for somewhere else for further processing.
 
-<details>
-<summary>Here's an example of circular dependency detection.</summary>
+<img src="examples/tauri.svg" alt="example diagram of packages within a workspace">
 
-```
-graph TD
-    service-1 --> db-connector
-    API --> service-2
-    API --> service-1
-    service-2 --> db-connector
-```
+To have such diagram gives you the following advantages:
 
-</details>
+- a high level overview of the software you create
+- gives you an idea about the degree of coupling between your packages
 
 ## Circular Dependency Detection
 
@@ -53,7 +44,8 @@ npm install -g @mermaid-js/mermaid-cli
 
 # Usage
 
-Then navigate to a Cargo workspace and run the tool:
+For all details, use `cargo-workspace-analyzer --help`. However here is how you can use it generally:
+Navigate to a Cargo workspace and run the tool:
 
  ```sh
  cd path/to/your/workspace
@@ -66,4 +58,20 @@ Or use an argument to specify the location of the workspace and run it from wher
  cargo-workspace-analyzer --working-dir /path/to/your/workspace
  ```
 
-For further details, use `cargo-workspace-analyzer --help`
+If you use the `--no-file` argument, the resulting [Mermaid](https://mermaid.js.org/) diagram will be printed to the
+console. You can copy it for somewhere else for further processing.
+
+<details>
+<summary>Here's an example of circular dependency detection.</summary>
+
+```
+graph TD
+    service-1 --> db-connector
+    API --> service-2
+    API --> service-1
+    service-2 --> db-connector
+```
+
+</details>
+
+
