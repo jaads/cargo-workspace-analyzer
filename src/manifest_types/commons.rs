@@ -12,6 +12,7 @@ pub struct Package {
 /// The parts which are inspected current are in both cases the same.
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
+#[allow(dead_code)] // may be used later
 pub enum DependencyInfo {
     Simple(Version),
     Detailed {

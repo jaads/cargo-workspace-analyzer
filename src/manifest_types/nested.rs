@@ -11,6 +11,7 @@ pub struct Manifest {
 
 #[derive(Debug)]
 pub struct ManifestFinding {
+    #[allow(dead_code)] // may be used later
     pub path: PathBuf,
     pub manifest: Manifest,
 }
