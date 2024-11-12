@@ -1,44 +1,14 @@
+use crate::graph_creation::get_graph_from_manifests;
 use crate::manifest_types::nested::ManifestFindings;
 use crate::manifest_types::root::CargoRootManifest;
-use std::collections::HashMap;
 
 // Function to generate the component diagram in Mermaid format
 pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFindings) -> String {
     let mut diagram = String::from("graph TD\n");
-
-    // Create a map from package names to their dependencies
-    let mut dependency_map: HashMap<String, Vec<String>> = HashMap::new();
-
-    // Add root package dependencies to the map
-    if let Some(root_package) = &root.package {
-        let root_name = &root_package.name;
-        let mut dependencies = Vec::new();
-
-        if let Some(root_dependencies) = &root.dependencies {
-            for dep_name in root_dependencies.keys() {
-                dependencies.push(dep_name.clone());
-            }
-        }
-
-        dependency_map.insert(root_name.clone(), dependencies);
-    }
-
-    // Add nested package dependencies to the map
-    for manifest_finding in &nested {
-        let package_name = &manifest_finding.manifest.package.name;
-        let mut dependencies = Vec::new();
-
-        if let Some(package_dependencies) = &manifest_finding.manifest.dependencies {
-            for dep_name in package_dependencies.keys() {
-                dependencies.push(dep_name.clone());
-            }
-        }
-
-        dependency_map.insert(package_name.clone(), dependencies);
-    }
+    let adjacent_list = get_graph_from_manifests(&root, &nested);
 
     // Sort package names, prioritizing the root package if it exists
-    let mut package_names: Vec<&String> = dependency_map.keys().collect();
+    let mut package_names: Vec<&String> = adjacent_list.keys().collect();
     package_names.sort();
 
     // Set to track packages that are already referenced in edges
@@ -46,11 +16,11 @@ pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFind
 
     // Generate edges, prioritizing the root package
     if let Some(root_package) = &root.package {
-        if let Some(deps) = dependency_map.get(&root_package.name) {
+        if let Some(deps) = adjacent_list.get(&root_package.name) {
             let mut sorted_deps = deps.clone();
             sorted_deps.sort(); // Sort dependencies to ensure consistent output
             for dep in sorted_deps {
-                if dependency_map.contains_key(&dep) {
+                if adjacent_list.contains_key(&dep) {
                     diagram.push_str(&format!("    {} --> {}\n", root_package.name, dep));
                     referenced_packages.insert(dep.clone());
                 }
@@ -61,9 +31,9 @@ pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFind
     // Generate edges for other packages in sorted order
     for pkg in package_names.iter() {
         if Some(*pkg) != root.package.as_ref().map(|p| &p.name) {
-            if let Some(deps) = dependency_map.get(*pkg) {
+            if let Some(deps) = adjacent_list.get(*pkg) {
                 for dep in deps {
-                    if dependency_map.contains_key(dep) {
+                    if adjacent_list.contains_key(dep) {
                         diagram.push_str(&format!("    {} --> {}\n", pkg, dep));
                         referenced_packages.insert(dep.clone());
                     }
@@ -74,7 +44,7 @@ pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFind
 
     // Add standalone nodes for packages with no dependencies and not referenced in any edges
     for pkg in package_names.iter() {
-        if let Some(deps) = dependency_map.get(*pkg) {
+        if let Some(deps) = adjacent_list.get(*pkg) {
             if deps.is_empty() && !referenced_packages.contains(*pkg) {
                 diagram.push_str(&format!("    {}\n", pkg));
             }
@@ -96,6 +66,7 @@ mod tests {
     use super::*;
     use crate::manifest_types::commons::{DependencyInfo, Package};
     use crate::manifest_types::nested::{Manifest, ManifestFinding};
+    use std::collections::HashMap;
     use std::path::PathBuf;
 
     fn setup_manifest(name: &str, dependencies: Vec<&str>) -> ManifestFinding {

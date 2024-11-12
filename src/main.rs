@@ -11,6 +11,7 @@ use std::path::Path;
 mod arguments;
 mod diagram;
 mod exporter;
+mod graph_creation;
 mod manifest_collector;
 mod manifest_types;
 mod package_counter;

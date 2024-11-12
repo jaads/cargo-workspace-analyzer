@@ -1,7 +1,7 @@
 use crate::diagram::graph::Graph;
 
-/// Checks a Mermaid diagram string for circular dependencies and marks cycles in red.
-pub fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
+/// Builds a graph from a Mermaid diagram string by parsing edges.
+pub fn build_graph_from_mermaid(mermaid_diagram: &str) -> (Graph, Vec<(String, String, String)>) {
     let mut graph = Graph::new();
     let mut edges = Vec::new();
 
@@ -12,6 +12,14 @@ pub fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
             edges.push((from.clone(), to.clone(), line.to_string()));
         }
     }
+
+    (graph, edges)
+}
+
+/// Checks a Mermaid diagram string for circular dependencies and marks cycles in red.
+pub fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
+    // Build the graph and get the parsed edges.
+    let (graph, edges) = build_graph_from_mermaid(mermaid_diagram);
 
     // Detect cycles
     let cycle_edges = graph.detect_cycles();
@@ -45,6 +53,7 @@ fn parse_edge(line: &str) -> Option<(String, String)> {
         None
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
