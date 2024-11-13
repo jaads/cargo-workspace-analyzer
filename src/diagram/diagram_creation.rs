@@ -1,42 +1,25 @@
 use crate::graph_creation::get_graph_from_manifests;
 use crate::manifest_types::nested::ManifestFindings;
-use crate::manifest_types::root::CargoRootManifest;
 
 // Function to generate the component diagram in Mermaid format
-pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFindings) -> String {
+pub fn generate_dependency_diagram(nested: ManifestFindings) -> String {
     let mut diagram = String::from("graph TD\n");
-    let adjacent_list = get_graph_from_manifests(&root, &nested);
+    let adjacent_list = get_graph_from_manifests(&nested);
 
-    // Sort package names, prioritizing the root package if it exists
+    // Sort package names alphabetically
     let mut package_names: Vec<&String> = adjacent_list.keys().collect();
     package_names.sort();
 
     // Set to track packages that are already referenced in edges
     let mut referenced_packages = std::collections::HashSet::new();
 
-    // Generate edges, prioritizing the root package
-    if let Some(root_package) = &root.package {
-        if let Some(deps) = adjacent_list.get(&root_package.name) {
-            let mut sorted_deps = deps.clone();
-            sorted_deps.sort(); // Sort dependencies to ensure consistent output
-            for dep in sorted_deps {
-                if adjacent_list.contains_key(&dep) {
-                    diagram.push_str(&format!("    {} --> {}\n", root_package.name, dep));
-                    referenced_packages.insert(dep.clone());
-                }
-            }
-        }
-    }
-
-    // Generate edges for other packages in sorted order
+    // Generate edges for packages in sorted order
     for pkg in package_names.iter() {
-        if Some(*pkg) != root.package.as_ref().map(|p| &p.name) {
-            if let Some(deps) = adjacent_list.get(*pkg) {
-                for dep in deps {
-                    if adjacent_list.contains_key(dep) {
-                        diagram.push_str(&format!("    {} --> {}\n", pkg, dep));
-                        referenced_packages.insert(dep.clone());
-                    }
+        if let Some(deps) = adjacent_list.get(*pkg) {
+            for dep in deps {
+                if adjacent_list.contains_key(dep) {
+                    diagram.push_str(&format!("    {} --> {}\n", pkg, dep));
+                    referenced_packages.insert(dep.clone());
                 }
             }
         }
@@ -48,13 +31,6 @@ pub fn generate_dependency_diagram(root: CargoRootManifest, nested: ManifestFind
             if deps.is_empty() && !referenced_packages.contains(*pkg) {
                 diagram.push_str(&format!("    {}\n", pkg));
             }
-        }
-    }
-
-    // Ensure the root package is shown if no nodes or edges were added
-    if diagram == "graph TD\n" {
-        if let Some(root_package) = &root.package {
-            diagram.push_str(&format!("    {}\n", root_package.name));
         }
     }
 
@@ -92,82 +68,33 @@ mod tests {
     #[test]
     fn test_single_package_no_dependencies() {
         // Single package, no dependencies
-        let root_manifest = CargoRootManifest {
-            package: Some(Package {
-                name: "root_package".to_string(),
-            }),
-            workspace: None,
-            dependencies: None,
-            dev_dependencies: None,
-            build_dependencies: None,
-        };
-
         let nested = vec![];
-
-        let diagram = generate_dependency_diagram(root_manifest, nested);
-        let expected = "graph TD\n    root_package\n";
+        let diagram = generate_dependency_diagram(nested);
+        let expected = "graph TD\n";
         assert_eq!(diagram, expected);
     }
 
     #[test]
     fn test_linear_dependencies() {
-        // root_package --> package_a --> package_b
-        let root_manifest = CargoRootManifest {
-            package: Some(Package {
-                name: "root_package".to_string(),
-            }),
-            dependencies: Some(
-                [(
-                    "package_a".to_string(),
-                    DependencyInfo::Simple("1.0".to_string()),
-                )]
-                .into_iter()
-                .collect(),
-            ),
-            ..Default::default()
-        };
-
         let nested = vec![
             setup_manifest("package_a", vec!["package_b"]),
             setup_manifest("package_b", vec![]),
         ];
 
-        let diagram = generate_dependency_diagram(root_manifest, nested);
-        let expected = "graph TD\n    root_package --> package_a\n    package_a --> package_b\n";
+        let diagram = generate_dependency_diagram(nested);
+        let expected = "graph TD\n    package_a --> package_b\n";
         assert_eq!(diagram, expected);
     }
 
     #[test]
     fn test_complex_dependencies() {
-        // root_package depends on package_a and package_b; package_a depends on package_b
-        let root_manifest = CargoRootManifest {
-            package: Some(Package {
-                name: "root_package".to_string(),
-            }),
-            dependencies: Some(
-                [
-                    (
-                        "package_a".to_string(),
-                        DependencyInfo::Simple("1.0".to_string()),
-                    ),
-                    (
-                        "package_b".to_string(),
-                        DependencyInfo::Simple("1.0".to_string()),
-                    ),
-                ]
-                .into_iter()
-                .collect(),
-            ),
-            ..Default::default()
-        };
-
         let nested = vec![
             setup_manifest("package_a", vec!["package_b"]),
             setup_manifest("package_b", vec![]),
         ];
 
-        let diagram = generate_dependency_diagram(root_manifest, nested);
-        let expected = "graph TD\n    root_package --> package_a\n    root_package --> package_b\n    package_a --> package_b\n";
+        let diagram = generate_dependency_diagram(nested);
+        let expected = "graph TD\n    package_a --> package_b\n";
         assert_eq!(diagram, expected);
     }
 }

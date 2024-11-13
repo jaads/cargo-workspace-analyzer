@@ -24,10 +24,10 @@ fn main() {
     println!("{} packages in total", amount_of_packages);
 
     // load manifests
-    let (root, nested) = get_manifests(Path::new(&args.directory));
+    let (_root, nested) = get_manifests(Path::new(&args.directory));
 
     // create diagram, incl. highlights of circular deps
-    let result = create_diagram(root, nested);
+    let result = create_diagram(nested);
 
     // save to file if needed
     if args.no_file {

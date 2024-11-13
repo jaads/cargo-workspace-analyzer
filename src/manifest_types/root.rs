@@ -1,16 +1,12 @@
-use crate::manifest_types::commons::{Dependencies, Package};
+use crate::manifest_types::commons::Dependencies;
 use serde::Deserialize;
 
 /// The "virtual" manifest
 #[derive(Deserialize, Debug)]
 pub struct CargoRootManifest {
     pub workspace: Option<Workspace>,
-    pub package: Option<Package>,
+    #[allow(dead_code)] // may be used later
     pub dependencies: Option<Dependencies>,
-    #[allow(dead_code)] // may be used later
-    pub dev_dependencies: Option<Dependencies>,
-    #[allow(dead_code)] // may be used later
-    pub build_dependencies: Option<Dependencies>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -24,11 +20,8 @@ pub struct Workspace {
 impl Default for CargoRootManifest {
     fn default() -> Self {
         CargoRootManifest {
-            package: None,
             workspace: None,
             dependencies: None,
-            dev_dependencies: None,
-            build_dependencies: None,
         }
     }
 }
