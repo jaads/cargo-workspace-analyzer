@@ -3,7 +3,7 @@ name = "cargo-workspace-analyzer"
 version = "0.3.3"
 edition = "2021"
 authors = ["Jan Arends <kontakt@jaads.de>"]
-description = "A CLI tool that prases manifest files and gives insights about the workspace"
+description = "A CLI tool that creates a dependency diagram from a Cargo workspace."
 license = "GPL-3.0-only"
 repository = "https://github.com/jaads/cargo-workspace-analyzer"
 keywords = ["cargo", "workspace", "packages", "analyzer"]
@@ -20,5 +20,4 @@ walkdir = "2.5.0"
 [dev-dependencies]
 assert_cmd = "2.0.16"
 assert_fs = "1.1.2"
-predicates = "3.1.2"
 tempfile = "3.13.0"
