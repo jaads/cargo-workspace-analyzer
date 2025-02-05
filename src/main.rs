@@ -2,19 +2,18 @@
 #![doc = include_str!("../README.md")]
 
 use crate::arguments::get_args;
-use crate::diagram::create_diagram;
+use crate::diagram_creation::create_diagram;
 use crate::exporter::generate_mermaid_png;
-use crate::manifest_collector::get_manifests;
+use crate::manifests_collector::get_manifests;
 use crate::package_counter::count_packages;
 use std::path::Path;
 
 mod arguments;
-mod diagram;
+mod diagram_creation;
 mod exporter;
-mod graph_creation;
-mod manifest_collector;
-mod manifest_types;
+mod manifests_collector;
 mod package_counter;
+mod types;
 
 fn main() {
     let args = get_args();

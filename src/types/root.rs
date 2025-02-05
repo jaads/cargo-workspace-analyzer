@@ -1,4 +1,4 @@
-use crate::manifest_types::commons::Dependencies;
+use crate::types::commons::Dependencies;
 use serde::Deserialize;
 
 /// The "virtual" manifest

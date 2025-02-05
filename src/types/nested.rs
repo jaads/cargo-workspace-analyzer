@@ -1,4 +1,4 @@
-use crate::manifest_types::commons::{Dependencies, Package};
+use crate::types::commons::{Dependencies, Package};
 use serde::Deserialize;
 use std::path::PathBuf;
 

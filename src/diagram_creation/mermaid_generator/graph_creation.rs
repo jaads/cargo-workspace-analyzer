@@ -1,4 +1,4 @@
-use crate::manifest_types::nested::ManifestFindings;
+use crate::types::nested::ManifestFindings;
 use std::collections::HashMap;
 
 pub type Graph = HashMap<String, Vec<String>>;
@@ -28,8 +28,8 @@ pub fn get_graph_from_manifests(nested: &ManifestFindings) -> Graph {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::manifest_types::commons::{DependencyInfo, Package};
-    use crate::manifest_types::nested::{Manifest, ManifestFinding};
+    use crate::types::commons::{DependencyInfo, Package};
+    use crate::types::nested::{Manifest, ManifestFinding};
     use std::collections::HashMap;
     use std::path::PathBuf;
 

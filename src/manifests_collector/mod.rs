@@ -1,7 +1,7 @@
-use crate::manifest_collector::nested::collect_manifests;
-use crate::manifest_collector::root::get_root_manifest;
-use crate::manifest_types::nested::ManifestFindings;
-use crate::manifest_types::root::CargoRootManifest;
+use crate::manifests_collector::nested::collect_manifests;
+use crate::manifests_collector::root::get_root_manifest;
+use crate::types::nested::ManifestFindings;
+use crate::types::root::CargoRootManifest;
 use std::path::Path;
 
 mod nested;

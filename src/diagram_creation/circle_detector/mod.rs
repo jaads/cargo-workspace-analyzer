@@ -1,23 +1,9 @@
-use crate::diagram::graph::Graph;
+use crate::diagram_creation::circle_detector::graph::Graph;
 
-/// Builds a graph from a Mermaid diagram string by parsing edges.
-pub fn build_graph_from_mermaid(mermaid_diagram: &str) -> (Graph, Vec<(String, String, String)>) {
-    let mut graph = Graph::new();
-    let mut edges = Vec::new();
-
-    // Parse the mermaid string to extract edges.
-    for line in mermaid_diagram.lines() {
-        if let Some((from, to)) = parse_edge(line) {
-            graph.add_edge(&from, &to);
-            edges.push((from.clone(), to.clone(), line.to_string()));
-        }
-    }
-
-    (graph, edges)
-}
+mod graph;
 
 /// Checks a Mermaid diagram string for circular dependencies and marks cycles in red.
-pub fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
+pub fn detect_circular_dependencies(mermaid_diagram: &str) -> String {
     // Build the graph and get the parsed edges.
     let (graph, edges) = build_graph_from_mermaid(mermaid_diagram);
 
@@ -44,6 +30,22 @@ pub fn highlight_cycles_in_mermaid(mermaid_diagram: &str) -> String {
     highlighted_diagram
 }
 
+/// Builds a graph from a Mermaid diagram string by parsing edges.
+fn build_graph_from_mermaid(mermaid_diagram: &str) -> (Graph, Vec<(String, String, String)>) {
+    let mut graph = Graph::new();
+    let mut edges = Vec::new();
+
+    // Parse the mermaid string to extract edges.
+    for line in mermaid_diagram.lines() {
+        if let Some((from, to)) = parse_edge(line) {
+            graph.add_edge(&from, &to);
+            edges.push((from.clone(), to.clone(), line.to_string()));
+        }
+    }
+
+    (graph, edges)
+}
+
 /// Parses a line for an edge in a Mermaid diagram of the form `A --> B`.
 fn parse_edge(line: &str) -> Option<(String, String)> {
     let parts: Vec<&str> = line.split_whitespace().collect();
@@ -67,7 +69,7 @@ mod tests {
             C --> D
         "#;
 
-        let result = highlight_cycles_in_mermaid(mermaid_diagram);
+        let result = detect_circular_dependencies(mermaid_diagram);
 
         // Expecting no red highlights as there are no cycles
         assert!(!result.contains(":::red"));
@@ -82,7 +84,7 @@ mod tests {
             C --> A
         "#;
 
-        let result = highlight_cycles_in_mermaid(mermaid_diagram);
+        let result = detect_circular_dependencies(mermaid_diagram);
 
         // Expecting red highlights on all edges that form a cycle
         assert!(result.contains("A --> B:::red"));
@@ -102,7 +104,7 @@ mod tests {
             F --> D
         "#;
 
-        let result = highlight_cycles_in_mermaid(mermaid_diagram);
+        let result = detect_circular_dependencies(mermaid_diagram);
 
         // Expecting red highlights on edges that form cycles
         assert!(result.contains("A --> B:::red"));
@@ -123,7 +125,7 @@ mod tests {
             D --> E
         "#;
 
-        let result = highlight_cycles_in_mermaid(mermaid_diagram);
+        let result = detect_circular_dependencies(mermaid_diagram);
 
         // Expecting red highlights only on edges that form the cycle
         assert!(result.contains("A --> B:::red"));
@@ -140,7 +142,7 @@ mod tests {
             B --> C
         "#;
 
-        let result = highlight_cycles_in_mermaid(mermaid_diagram);
+        let result = detect_circular_dependencies(mermaid_diagram);
 
         // Expecting the self-loop to be highlighted in red as it forms a cycle
         assert!(result.contains("A --> A:::red"));
@@ -160,7 +162,7 @@ mod tests {
             F --> G
         "#;
 
-        let result = highlight_cycles_in_mermaid(mermaid_diagram);
+        let result = detect_circular_dependencies(mermaid_diagram);
 
         // Expecting red highlights only on edges that form cycles
         assert!(result.contains("A --> B:::red"));

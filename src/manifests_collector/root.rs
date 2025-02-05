@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use crate::manifest_collector::reader::load_cargo_toml_content;
-use crate::manifest_types::root::CargoRootManifest;
+use crate::manifests_collector::reader::load_cargo_toml_content;
+use crate::types::root::CargoRootManifest;
 
 /// Reads the contents of `Cargo.toml` in the specified directory.
 /// Panics if the file does not exist or cannot be read.

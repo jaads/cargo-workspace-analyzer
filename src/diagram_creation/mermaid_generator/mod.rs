@@ -1,8 +1,10 @@
-use crate::graph_creation::get_graph_from_manifests;
-use crate::manifest_types::nested::ManifestFindings;
+use graph_creation::get_graph_from_manifests;
+use crate::types::nested::ManifestFindings;
+
+mod graph_creation;
 
 // Function to generate the component diagram in Mermaid format
-pub fn generate_dependency_diagram(nested: ManifestFindings) -> String {
+pub fn generate_mermaid_markdown(nested: ManifestFindings) -> String {
     let mut diagram = String::from("graph TD\n");
     let adjacent_list = get_graph_from_manifests(&nested);
 
@@ -40,8 +42,8 @@ pub fn generate_dependency_diagram(nested: ManifestFindings) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::manifest_types::commons::{DependencyInfo, Package};
-    use crate::manifest_types::nested::{Manifest, ManifestFinding};
+    use crate::types::commons::{DependencyInfo, Package};
+    use crate::types::nested::{Manifest, ManifestFinding};
     use std::collections::HashMap;
     use std::path::PathBuf;
 
@@ -69,7 +71,7 @@ mod tests {
     fn test_single_package_no_dependencies() {
         // Single package, no dependencies
         let nested = vec![];
-        let diagram = generate_dependency_diagram(nested);
+        let diagram = generate_mermaid_markdown(nested);
         let expected = "graph TD\n";
         assert_eq!(diagram, expected);
     }
@@ -81,7 +83,7 @@ mod tests {
             setup_manifest("package_b", vec![]),
         ];
 
-        let diagram = generate_dependency_diagram(nested);
+        let diagram = generate_mermaid_markdown(nested);
         let expected = "graph TD\n    package_a --> package_b\n";
         assert_eq!(diagram, expected);
     }
@@ -93,7 +95,7 @@ mod tests {
             setup_manifest("package_b", vec![]),
         ];
 
-        let diagram = generate_dependency_diagram(nested);
+        let diagram = generate_mermaid_markdown(nested);
         let expected = "graph TD\n    package_a --> package_b\n";
         assert_eq!(diagram, expected);
     }

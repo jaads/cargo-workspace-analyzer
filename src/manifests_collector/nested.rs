@@ -1,5 +1,5 @@
-use crate::manifest_collector::reader::load_cargo_toml_content;
-use crate::manifest_types::nested::{ManifestFinding, ManifestFindings};
+use crate::manifests_collector::reader::load_cargo_toml_content;
+use crate::types::nested::{ManifestFinding, ManifestFindings};
 use std::path::Path;
 use walkdir::WalkDir;
 
