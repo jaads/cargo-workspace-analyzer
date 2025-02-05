@@ -1,6 +1,6 @@
 [package]
 name = "cargo-workspace-analyzer"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 authors = ["Jan Arends <kontakt@jaads.de>"]
 description = "A CLI tool that prases manifest files and gives insights about the workspace"
