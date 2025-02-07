@@ -1,28 +1,30 @@
+use crate::graph::Graph;
 use crate::types::nested::ManifestFindings;
-use std::collections::HashMap;
 
-pub type Graph = HashMap<String, Vec<String>>;
+impl Graph {
+    /// Populates the Graph from the root manifest and nested manifests (dependencies).
+    pub fn new_from_manifests(nested: &ManifestFindings) -> Self {
+        let mut graph = Graph::new();
 
-/// Populates the Graph from the root manifest and nested manifests (dependencies).
-pub fn get_graph_from_manifests(nested: &ManifestFindings) -> Graph {
-    let mut graph: Graph = HashMap::new();
+        // Add nested package dependencies to the map
+        for manifest_finding in nested {
+            let package_name = &manifest_finding.manifest.package.name;
+            let mut dependencies = Vec::new();
 
-    // Add nested package dependencies to the map
-    for manifest_finding in nested {
-        let package_name = &manifest_finding.manifest.package.name;
-        let mut dependencies = Vec::new();
-
-        if let Some(package_dependencies) = &manifest_finding.manifest.dependencies {
-            for dep_name in package_dependencies.keys() {
-                dependencies.push(dep_name.clone());
+            if let Some(package_dependencies) = &manifest_finding.manifest.dependencies {
+                for dep_name in package_dependencies.keys() {
+                    dependencies.push(dep_name.clone());
+                }
+                dependencies.sort();
             }
-            dependencies.sort();
+
+            graph
+                .adjacency_list
+                .insert(package_name.clone(), dependencies);
         }
 
-        graph.insert(package_name.clone(), dependencies);
+        graph
     }
-
-    graph
 }
 
 #[cfg(test)]
@@ -58,21 +60,21 @@ mod tests {
     fn test_single_package_no_dependencies() {
         // A single package with no dependencies
         let nested = vec![setup_manifest("package_a", vec![])];
-        let graph = get_graph_from_manifests(&nested);
-        let expected_graph: Graph = HashMap::from([("package_a".to_string(), vec![])]);
-        assert_eq!(graph, expected_graph);
+        let graph = Graph::new_from_manifests(&nested);
+        let adj_list = HashMap::from([("package_a".to_string(), vec![])]);
+        assert_eq!(graph.adjacency_list, adj_list);
     }
 
     #[test]
     fn test_single_package_with_dependencies() {
         // A single package with dependencies
         let nested = vec![setup_manifest("package_a", vec!["package_b", "package_c"])];
-        let graph = get_graph_from_manifests(&nested);
-        let expected_graph: Graph = HashMap::from([(
+        let graph = Graph::new_from_manifests(&nested);
+        let expected_graph = HashMap::from([(
             "package_a".to_string(),
             vec!["package_b".to_string(), "package_c".to_string()],
         )]);
-        assert_eq!(graph, expected_graph);
+        assert_eq!(graph.adjacency_list, expected_graph);
     }
 
     #[test]
@@ -84,14 +86,14 @@ mod tests {
             setup_manifest("package_c", vec![]),
         ];
 
-        let graph = get_graph_from_manifests(&nested);
-        let expected_graph: Graph = HashMap::from([
+        let graph = Graph::new_from_manifests(&nested);
+        let expected_graph = HashMap::from([
             ("package_a".to_string(), vec!["package_b".to_string()]),
             ("package_b".to_string(), vec!["package_c".to_string()]),
             ("package_c".to_string(), vec![]),
         ]);
 
-        assert_eq!(graph, expected_graph);
+        assert_eq!(graph.adjacency_list, expected_graph);
     }
 
     #[test]
@@ -103,14 +105,14 @@ mod tests {
             setup_manifest("package_c", vec![]),
         ];
 
-        let graph = get_graph_from_manifests(&nested);
-        let expected_graph: Graph = HashMap::from([
+        let graph = Graph::new_from_manifests(&nested);
+        let expected_graph = HashMap::from([
             ("package_a".to_string(), vec![]),
             ("package_b".to_string(), vec![]),
             ("package_c".to_string(), vec![]),
         ]);
 
-        assert_eq!(graph, expected_graph);
+        assert_eq!(graph.adjacency_list, expected_graph);
     }
 
     #[test]
@@ -124,8 +126,8 @@ mod tests {
             setup_manifest("package_e", vec![]),
         ];
 
-        let graph = get_graph_from_manifests(&nested);
-        let expected_graph: Graph = HashMap::from([
+        let graph = Graph::new_from_manifests(&nested);
+        let expected_graph = HashMap::from([
             (
                 "package_a".to_string(),
                 vec!["package_b".to_string(), "package_c".to_string()],
@@ -139,6 +141,6 @@ mod tests {
             ("package_e".to_string(), vec![]),
         ]);
 
-        assert_eq!(graph, expected_graph);
+        assert_eq!(graph.adjacency_list, expected_graph);
     }
 }

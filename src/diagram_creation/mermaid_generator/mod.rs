@@ -1,12 +1,8 @@
-use graph_creation::get_graph_from_manifests;
-use crate::types::nested::ManifestFindings;
-
-mod graph_creation;
-
+use crate::graph::Graph;
 // Function to generate the component diagram in Mermaid format
-pub fn generate_mermaid_markdown(nested: ManifestFindings) -> String {
+pub fn generate_mermaid_markdown(graph: Graph) -> String {
     let mut diagram = String::from("graph TD\n");
-    let adjacent_list = get_graph_from_manifests(&nested);
+    let adjacent_list = graph.adjacency_list;
 
     // Sort package names alphabetically
     let mut package_names: Vec<&String> = adjacent_list.keys().collect();
@@ -70,8 +66,7 @@ mod tests {
     #[test]
     fn test_single_package_no_dependencies() {
         // Single package, no dependencies
-        let nested = vec![];
-        let diagram = generate_mermaid_markdown(nested);
+        let diagram = generate_mermaid_markdown(Graph::new());
         let expected = "graph TD\n";
         assert_eq!(diagram, expected);
     }
@@ -83,7 +78,8 @@ mod tests {
             setup_manifest("package_b", vec![]),
         ];
 
-        let diagram = generate_mermaid_markdown(nested);
+        let g = Graph::new_from_manifests(&nested);
+        let diagram = generate_mermaid_markdown(g);
         let expected = "graph TD\n    package_a --> package_b\n";
         assert_eq!(diagram, expected);
     }
@@ -95,7 +91,8 @@ mod tests {
             setup_manifest("package_b", vec![]),
         ];
 
-        let diagram = generate_mermaid_markdown(nested);
+        let g = Graph::new_from_manifests(&nested);
+        let diagram = generate_mermaid_markdown(g);
         let expected = "graph TD\n    package_a --> package_b\n";
         assert_eq!(diagram, expected);
     }

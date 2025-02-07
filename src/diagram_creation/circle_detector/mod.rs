@@ -1,6 +1,6 @@
-use crate::diagram_creation::circle_detector::graph::Graph;
+use crate::graph::Graph;
 
-mod graph;
+mod graph_enhancements;
 
 /// Checks a Mermaid diagram string for circular dependencies and marks cycles in red.
 pub fn detect_circular_dependencies(mermaid_diagram: &str) -> String {

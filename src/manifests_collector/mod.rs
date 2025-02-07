@@ -1,16 +1,15 @@
 use crate::manifests_collector::nested::collect_manifests;
 use crate::manifests_collector::root::get_root_manifest;
-use crate::types::nested::ManifestFindings;
-use crate::types::root::CargoRootManifest;
 use std::path::Path;
+use crate::graph::Graph;
 
 mod nested;
 mod reader;
 mod root;
+mod graph_creation;
 
-pub fn get_manifests(dir: &Path) -> (CargoRootManifest, ManifestFindings) {
-    let root = get_root_manifest(dir);
+pub fn get_dependency_graph(dir: &Path) -> Graph {
+    let _root = get_root_manifest(dir);
     let nested = collect_manifests(dir);
-
-    (root, nested)
+    Graph::new_from_manifests(&nested)
 }

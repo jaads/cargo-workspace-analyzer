@@ -4,13 +4,14 @@
 use crate::arguments::get_args;
 use crate::diagram_creation::create_diagram;
 use crate::exporter::generate_mermaid_png;
-use crate::manifests_collector::get_manifests;
+use crate::manifests_collector::get_dependency_graph;
 use crate::package_counter::count_packages;
 use std::path::Path;
 
 mod arguments;
 mod diagram_creation;
 mod exporter;
+mod graph;
 mod manifests_collector;
 mod package_counter;
 mod types;
@@ -23,10 +24,10 @@ fn main() {
     println!("{} packages in total", amount_of_packages);
 
     // load manifests
-    let (_root, nested) = get_manifests(Path::new(&args.directory));
+    let graph = get_dependency_graph(Path::new(&args.directory));
 
     // create diagram, incl. highlights of circular deps
-    let result = create_diagram(nested);
+    let result = create_diagram(graph);
 
     // save to file if needed
     if args.no_file {
