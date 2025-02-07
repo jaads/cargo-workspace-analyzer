@@ -1,8 +1,7 @@
-use std::collections::{HashSet};
 use crate::graph::Graph;
+use std::collections::HashSet;
 
 impl Graph {
-
     /// Detects cycles and returns a set of edges involved in cycles.
     pub(crate) fn detect_cycles(&self) -> HashSet<(String, String)> {
         let mut visited = HashSet::new();

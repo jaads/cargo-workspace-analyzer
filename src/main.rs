@@ -13,9 +13,9 @@ mod diagram_creation;
 mod exporter;
 mod graph;
 mod manifests_collector;
+mod metrics;
 mod package_counter;
 mod types;
-mod metrics;
 
 fn main() {
     let args = get_args();

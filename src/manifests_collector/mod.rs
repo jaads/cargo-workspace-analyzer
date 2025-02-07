@@ -1,12 +1,12 @@
+use crate::graph::Graph;
 use crate::manifests_collector::nested::collect_manifests;
 use crate::manifests_collector::root::get_root_manifest;
 use std::path::Path;
-use crate::graph::Graph;
 
+mod graph_creation;
 mod nested;
 mod reader;
 mod root;
-mod graph_creation;
 
 pub fn get_dependency_graph(dir: &Path) -> Graph {
     let _root = get_root_manifest(dir);
