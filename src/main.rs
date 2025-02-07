@@ -15,6 +15,7 @@ mod graph;
 mod manifests_collector;
 mod package_counter;
 mod types;
+mod metrics;
 
 fn main() {
     let args = get_args();
