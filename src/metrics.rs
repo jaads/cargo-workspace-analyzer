@@ -1,5 +1,5 @@
 use crate::graph::Graph;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 impl Graph {
     pub fn calculate_coupling(&self) -> HashMap<String, (usize, usize)> {
@@ -11,11 +11,13 @@ impl Graph {
 
         // Traverse the graph to calculate Ce and update Ca
         for (package, dependencies) in &self.adjacency_list {
-            // Efferent Coupling (Ce) is the number of outgoing dependencies
-            let ce = dependencies.len();
+            // Efferent Coupling (Ce): Count unique outgoing dependencies
+            let unique_dependencies: HashSet<_> =
+                dependencies.iter().filter(|dep| !dep.is_empty()).collect();
+            let ce = unique_dependencies.len();
 
             // Update Ca (afferent coupling) for each dependency
-            for dependency in dependencies {
+            for dependency in unique_dependencies {
                 *ca_map.entry(dependency.clone()).or_insert(0) += 1;
             }
 
@@ -23,14 +25,9 @@ impl Graph {
             coupling_map.insert(package.clone(), (ce, 0)); // Ca will be updated later
         }
 
-        // Update the Ca values in the result map
+        // Ensure all nodes, including those that only appear as dependencies, are in the coupling map
         for (package, ca) in ca_map {
-            if let Some(entry) = coupling_map.get_mut(&package) {
-                entry.1 = ca; // Set the Ca value
-            } else {
-                // Handle case where a package has no outgoing dependencies (Ca > 0, Ce = 0)
-                coupling_map.insert(package, (0, ca));
-            }
+            coupling_map.entry(package).or_insert((0, ca)).1 = ca;
         }
 
         coupling_map
@@ -63,32 +60,34 @@ mod tests {
     }
 
     #[test]
-    fn test_multiple_packages_no_dependencies() {
+    fn test_duplicate_dependencies() {
         let mut graph = Graph::new();
-        graph.adjacency_list.insert("package_a".to_string(), vec![]);
+        graph.adjacency_list.insert(
+            "package_a".to_string(),
+            vec!["package_b".to_string(), "package_b".to_string()],
+        );
         graph.adjacency_list.insert("package_b".to_string(), vec![]);
 
         let coupling = graph.calculate_coupling();
 
         assert_eq!(
             coupling.get("package_a"),
-            Some(&(0, 0)),
-            "Package_a should have Ce = 0 and Ca = 0"
+            Some(&(1, 0)),
+            "Package_a should have Ce = 1 (not counting duplicate dependencies) and Ca = 0"
         );
         assert_eq!(
             coupling.get("package_b"),
-            Some(&(0, 0)),
-            "Package_b should have Ce = 0 and Ca = 0"
+            Some(&(0, 1)),
+            "Package_b should have Ce = 0 and Ca = 1"
         );
     }
 
     #[test]
-    fn test_single_dependency() {
+    fn test_dependency_only_node() {
         let mut graph = Graph::new();
         graph
             .adjacency_list
             .insert("package_a".to_string(), vec!["package_b".to_string()]);
-        graph.adjacency_list.insert("package_b".to_string(), vec![]);
 
         let coupling = graph.calculate_coupling();
 
@@ -100,7 +99,7 @@ mod tests {
         assert_eq!(
             coupling.get("package_b"),
             Some(&(0, 1)),
-            "Package_b should have Ce = 0 and Ca = 1"
+            "Package_b should have Ce = 0 and Ca = 1, even though it only appears as a dependency"
         );
     }
 
