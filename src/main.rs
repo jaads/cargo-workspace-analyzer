@@ -28,7 +28,7 @@ fn main() {
     let graph = get_dependency_graph(Path::new(&args.directory));
 
     // create diagram, incl. highlights of circular deps
-    let result = create_diagram(graph);
+    let result = create_diagram(&graph);
 
     // save to file if needed
     if args.no_file {
@@ -36,4 +36,7 @@ fn main() {
     } else {
         generate_mermaid_png(&result);
     }
+
+    // calculate and print the metrics
+    graph.print_coupling();
 }

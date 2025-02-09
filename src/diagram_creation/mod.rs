@@ -5,7 +5,7 @@ use crate::graph::Graph;
 mod circle_detector;
 mod mermaid_generator;
 
-pub fn create_diagram(graph: Graph) -> String {
+pub fn create_diagram(graph: &Graph) -> String {
     let diagram = generate_mermaid_markdown(graph);
     detect_circular_dependencies(&diagram)
 }
