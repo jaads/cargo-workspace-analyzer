@@ -32,6 +32,22 @@ impl Graph {
 
         coupling_map
     }
+
+    pub fn print_coupling(&self) {
+        let coupling = self.calculate_coupling();
+
+        if coupling.is_empty() {
+            println!("No packages found in the graph.");
+            return;
+        }
+
+        println!("{:<40} {:<10} {:<10}", "Package", "Ce", "Ca");
+        println!("{:-<40}", ""); // Divider line
+
+        for (package, (ce, ca)) in coupling {
+            println!("{:<40} {:<10} {:<10}", package, ce, ca);
+        }
+    }
 }
 #[cfg(test)]
 mod tests {
