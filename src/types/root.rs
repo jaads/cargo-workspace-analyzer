@@ -1,5 +1,12 @@
 use crate::types::commons::Dependencies;
 use serde::Deserialize;
+use std::path::PathBuf;
+
+#[derive(Deserialize, Debug)]
+pub struct CargoRootManifestFinding {
+    pub path: PathBuf,
+    pub manifest: CargoRootManifest,
+}
 
 /// The "virtual" manifest
 #[derive(Deserialize, Debug)]

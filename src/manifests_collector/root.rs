@@ -1,11 +1,11 @@
 use std::path::Path;
 
 use crate::manifests_collector::reader::load_cargo_toml_content;
-use crate::types::root::CargoRootManifest;
+use crate::types::root::{CargoRootManifest, CargoRootManifestFinding};
 
 /// Reads the contents of `Cargo.toml` in the specified directory.
 /// Panics if the file does not exist or cannot be read.
-pub fn get_root_manifest(dir: &Path) -> CargoRootManifest {
+pub fn get_root_manifest(dir: &Path) -> CargoRootManifestFinding {
     let cargo_toml_path = dir.join("Cargo.toml");
 
     if cargo_toml_path.exists() {
@@ -14,7 +14,10 @@ pub fn get_root_manifest(dir: &Path) -> CargoRootManifest {
         if manifest.workspace.is_none() {
             panic!("This directory doesn't seem to be a workspace. There is no workspace definition in the root manifest. ");
         }
-        manifest
+        CargoRootManifestFinding {
+            manifest,
+            path: dir.to_path_buf(),
+        }
     } else {
         panic!("No Cargo.toml file found in the specified directory");
     }
@@ -43,7 +46,7 @@ mod tests {
         let manifest = get_root_manifest(&temp_dir.path());
 
         // Check that the `package` section exists and has the expected values
-        if let Some(manifest) = manifest.workspace {
+        if let Some(manifest) = manifest.manifest.workspace {
             assert_eq!(manifest.members, Some(vec!["package1".to_string()]));
         }
 

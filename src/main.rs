@@ -24,8 +24,9 @@ fn main() {
     let amount_of_packages = count_packages(&args.directory);
     println!("{} packages in total", amount_of_packages);
 
-    // load manifests
+    // load filtered manifests
     let graph = get_dependency_graph(Path::new(&args.directory));
+    println!("{} workspace members", graph.adjacency_list.len());
 
     // create diagram, incl. highlights of circular deps
     let result = create_diagram(&graph);
