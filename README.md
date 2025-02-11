@@ -23,6 +23,15 @@ This analyzer finds circular dependencies. It highlights those packages, which f
 regularly, one can detect circular dependencies before they get hard if not impossible to resolve later on. See
 this [example](https://www.mermaidchart.com/raw/35c87214-1aea-46a9-b633-8fd3bd4f90ad?theme=light&version=v0.1&format=svg).
 
+## Metric calculations
+
+The created graph is used to calculate common metrics in regard to the coupling of packages.
+The following metric are supported:
+
+- Afferent Coupling
+- Efferent Coupling
+- Instability Metric
+
 ## Package Count
 
 It will also display the amount of packages in your workspace.
