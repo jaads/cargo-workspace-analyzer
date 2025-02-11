@@ -16,7 +16,6 @@ pub fn generate_mermaid_png(mermaid_code: &str) {
     if let Err(e) = std::fs::remove_file(INPUT_PATH) {
         println!("Failed to remove file: {}", e);
     }
-    println!("Diagram rendered successfully.")
 }
 
 fn verify_mmdc_installation() {
