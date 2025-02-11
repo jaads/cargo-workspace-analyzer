@@ -1,9 +1,9 @@
 [package]
 name = "cargo-workspace-analyzer"
-version = "0.3.3"
+version = "0.4.0"
 edition = "2021"
 authors = ["Jan Arends <kontakt@jaads.de>"]
-description = "A CLI tool that creates a dependency diagram from a Cargo workspace."
+description = "A CLI tool that analyses dependencies within a Cargo workspace."
 license = "GPL-3.0-only"
 repository = "https://github.com/jaads/cargo-workspace-analyzer"
 keywords = ["cargo", "workspace", "packages", "analyzer"]
