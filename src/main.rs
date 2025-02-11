@@ -22,11 +22,11 @@ fn main() {
 
     // count packages
     let amount_of_packages = count_packages(&args.directory);
-    println!("{} packages in total", amount_of_packages);
+    println!("Found {} packages in total", amount_of_packages);
 
     // load filtered manifests
     let graph = get_dependency_graph(Path::new(&args.directory));
-    println!("{} workspace members", graph.adjacency_list.len());
+    println!("Found {} workspace members", graph.adjacency_list.len());
 
     // create diagram, incl. highlights of circular deps
     let result = create_diagram(&graph);
