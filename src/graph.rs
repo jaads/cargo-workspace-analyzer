@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-/// Represents a directed graph to detect cycles.
+/// Represents a directed graph.
+#[derive(Debug)]
 pub struct Graph {
     pub(crate) adjacency_list: HashMap<String, Vec<String>>,
 }
 
 impl Graph {
-    /// Creates a new graph.
     pub(crate) fn new() -> Self {
         Graph {
             adjacency_list: HashMap::new(),
@@ -19,6 +19,14 @@ impl Graph {
             .entry(from.to_string())
             .or_insert_with(Vec::new)
             .push(to.to_string());
+    }
+
+    pub fn get_edge_count(&self) -> usize {
+        self.adjacency_list.values().map(|deps| deps.len()).sum()
+    }
+
+    pub fn get_node_count(&self) -> usize {
+        self.adjacency_list.len()
     }
 }
 

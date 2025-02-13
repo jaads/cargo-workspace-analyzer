@@ -26,7 +26,12 @@ fn main() {
 
     // load filtered manifests
     let graph = get_dependency_graph(Path::new(&args.directory));
-    println!("Found {} workspace members", graph.adjacency_list.len());
+    println!(
+        "Found {} workspace members with {} dependencies",
+        graph.get_node_count(),
+        graph.get_edge_count()
+    );
+    println!("{:?}", graph);
 
     // create diagram, incl. highlights of circular deps
     let result = create_diagram(&graph);
