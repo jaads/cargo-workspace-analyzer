@@ -25,7 +25,7 @@ fn main() {
     let amount_of_packages = count_packages(&args.directory);
 
     // load filtered manifests
-    let mut graph = get_dependency_graph(Path::new(&args.directory));
+    let graph = get_dependency_graph(Path::new(&args.directory));
 
     // filter dependencies to only include references to workspace members
     let filtered = graph.filter_dependencies();

@@ -16,19 +16,10 @@ pub struct CargoRootManifest {
     pub dependencies: Option<Dependencies>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 #[allow(dead_code)] // may be used later
 pub struct Workspace {
     pub members: Option<Vec<String>>,
     pub exclude: Option<Vec<String>>,
     pub default_members: Option<Vec<String>>,
-}
-
-impl Default for CargoRootManifest {
-    fn default() -> Self {
-        CargoRootManifest {
-            workspace: None,
-            dependencies: None,
-        }
-    }
 }
