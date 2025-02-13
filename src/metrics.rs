@@ -51,14 +51,17 @@ impl Graph {
             return;
         }
 
+        println!();
+        println!("Metrics:");
+        println!();
         println!(
-            "{:<40} {:<10} {:<10} {:<10}",
-            "Package", "Ce", "Ca", "Instability"
+            "{:<40} {:<20} {:<20} {:<10}",
+            "Package", "Efferent Coupling", "Afferent Coupling", "Instability"
         );
-        println!("{:-<80}", ""); // Divider line
+        println!("{:-<95}", ""); // Divider line
 
         for (package, (ce, ca, instability)) in coupling {
-            println!("{:<40} {:<10} {:<10} {:.2}", package, ce, ca, instability);
+            println!("{:<40} {:<20} {:<20} {:.2}", package, ce, ca, instability);
         }
     }
 }
