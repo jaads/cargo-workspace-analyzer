@@ -9,6 +9,7 @@ use crate::package_counter::count_packages;
 use std::path::Path;
 
 mod arguments;
+mod dependency_filter;
 mod diagram_creation;
 mod exporter;
 mod graph;
@@ -22,19 +23,27 @@ fn main() {
 
     // count packages
     let amount_of_packages = count_packages(&args.directory);
-    println!("Found {} packages in total", amount_of_packages);
 
     // load filtered manifests
-    let graph = get_dependency_graph(Path::new(&args.directory));
+    let mut graph = get_dependency_graph(Path::new(&args.directory));
+
+    // filter dependencies to only include references to workspace members
+    let filtered = graph.filter_dependencies();
+
     println!(
-        "Found {} workspace members with {} dependencies",
+        "Found {} packages in total and {} workspace members.",
+        amount_of_packages,
         graph.get_node_count(),
-        graph.get_edge_count()
     );
-    println!("{:?}", graph);
+
+    println!(
+        "Found {} dependencies in total and {} workspace dependencies.",
+        graph.get_edge_count(),
+        filtered.get_edge_count()
+    );
 
     // create diagram, incl. highlights of circular deps
-    let result = create_diagram(&graph);
+    let result = create_diagram(&filtered);
 
     // save to file if needed
     if args.no_file {
@@ -44,5 +53,5 @@ fn main() {
     }
 
     // calculate and print the metrics
-    graph.print_coupling();
+    filtered.print_coupling();
 }

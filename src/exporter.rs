@@ -40,7 +40,6 @@ fn write_mermaid_code_to_file(mermaid_code: &str, file_path: &str) {
     let mut file = File::create(file_path).expect("Unable to create temp file.");
     file.write_all(mermaid_code.as_bytes())
         .expect("Unable to write to temp file.");
-    println!("Mermaid code written to {}", file_path);
 }
 
 /// Renders the `.mmd` file as a PNG using `mmdc`.

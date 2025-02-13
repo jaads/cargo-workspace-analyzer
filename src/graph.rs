@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 /// Represents a directed graph.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Graph {
     pub(crate) adjacency_list: HashMap<String, Vec<String>>,
 }
