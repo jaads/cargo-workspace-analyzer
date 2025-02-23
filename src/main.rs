@@ -5,6 +5,7 @@ use crate::arguments::get_args;
 use crate::diagram_creation::create_diagram;
 use crate::exporter::generate_mermaid_png;
 use crate::manifests_collector::get_dependency_graph;
+use crate::metrics::CouplingMetric;
 use crate::package_counter::count_packages;
 use std::path::Path;
 
@@ -53,5 +54,26 @@ fn main() {
     }
 
     // calculate and print the metrics
-    filtered.print_coupling();
+    let metrics = filtered.calculate_coupling();
+    print_coupling(metrics);
+}
+
+pub fn print_coupling(metrics: CouplingMetric) {
+    if metrics.is_empty() {
+        println!("No packages found in the graph.");
+        return;
+    }
+
+    println!();
+    println!("Metrics:");
+    println!();
+    println!(
+        "{:<40} {:<20} {:<20} {:<10}",
+        "Package", "Efferent Coupling", "Afferent Coupling", "Instability"
+    );
+    println!("{:-<95}", ""); // Divider line
+
+    for (package, (ce, ca, instability)) in metrics {
+        println!("{:<40} {:<20} {:<20} {:.2}", package, ce, ca, instability);
+    }
 }

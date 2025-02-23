@@ -1,8 +1,14 @@
 use crate::graph::Graph;
 use std::collections::{HashMap, HashSet};
 
+type Ce = usize;
+type Ca = usize;
+type Instability = f32;
+type PackageName = String;
+pub type CouplingMetric = HashMap<PackageName, (Ce, Ca, Instability)>;
+
 impl Graph {
-    pub fn calculate_coupling(&self) -> HashMap<String, (usize, usize, f32)> {
+    pub fn calculate_coupling(&self) -> CouplingMetric {
         // Map to store Afferent Coupling (Ca) for each package
         let mut ca_map: HashMap<String, usize> = HashMap::new();
 
@@ -42,29 +48,8 @@ impl Graph {
 
         coupling_map
     }
-
-    pub fn print_coupling(&self) {
-        let coupling = self.calculate_coupling();
-
-        if coupling.is_empty() {
-            println!("No packages found in the graph.");
-            return;
-        }
-
-        println!();
-        println!("Metrics:");
-        println!();
-        println!(
-            "{:<40} {:<20} {:<20} {:<10}",
-            "Package", "Efferent Coupling", "Afferent Coupling", "Instability"
-        );
-        println!("{:-<95}", ""); // Divider line
-
-        for (package, (ce, ca, instability)) in coupling {
-            println!("{:<40} {:<20} {:<20} {:.2}", package, ce, ca, instability);
-        }
-    }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
