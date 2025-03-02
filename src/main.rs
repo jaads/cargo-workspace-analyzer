@@ -13,7 +13,8 @@ use std::path::Path;
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::layout::{Constraint, Direction, Layout, Margin};
-use ratatui::widgets::{BorderType, List, ListItem};
+use ratatui::style::{Modifier, Style};
+use ratatui::widgets::{Borders, Cell, Row, Table};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -202,43 +203,52 @@ impl Widget for &SimpleMetrics {
         .render(chunks[1], buf);
     }
 }
-// Define a new widget struct for coupling metrics
+
 pub struct CouplingMetricsWidget<'a> {
     pub metrics: &'a HashMap<String, (usize, usize, f32)>,
 }
 
-impl Widget for &CouplingMetricsWidget<'_> {
+impl<'a> Widget for &CouplingMetricsWidget<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let block = Block::bordered()
+        Block::bordered()
             .title(" 📊 Coupling Metrics ")
-            .border_type(BorderType::Plain);
+            .borders(Borders::ALL)
+            .render(area, buf);
 
-        // Render the main block
-        block.render(area, buf);
+        // Define column constraints for table widths
+        let column_constraints = [
+            Constraint::Percentage(40), // Package Name
+            Constraint::Percentage(20), // Ce
+            Constraint::Percentage(20), // Ca
+            Constraint::Percentage(20), // Instability
+        ];
 
-        // Define an inner area with proper margin
-        let inner_area = area.inner(Margin {
-            horizontal: 2,
-            vertical: 2,
+        // Define the table headers
+        let header_cells = [
+            "Package",
+            "Efferent Coupling",
+            "Afferent Coupling",
+            "Instability",
+        ]
+        .iter()
+        .map(|h| Cell::from(*h).style(Style::default().add_modifier(Modifier::BOLD)));
+        let header = Row::new(header_cells).height(1);
+
+        // Convert metrics into table rows
+        let rows = self.metrics.iter().map(|(package, (ce, ca, instability))| {
+            Row::new(vec![
+                Cell::from(package.as_str()),
+                Cell::from(ce.to_string()),
+                Cell::from(ca.to_string()),
+                Cell::from(format!("{:.2}", instability)),
+            ])
         });
 
-        // Convert metrics into `ListItem`s
-        let list_items: Vec<ListItem> = self
-            .metrics
-            .iter()
-            .map(|(package, (ce, ca, instability))| {
-                ListItem::new(format!(
-                    "📦 {} | Ce: {} | Ca: {} | I: {:.2}",
-                    package, ce, ca, instability
-                ))
-            })
-            .collect();
-
-        // Create the List widget
-        let metrics_list = List::new(list_items).highlight_symbol("▶ ");
-
-        // Render the list inside the inner area
-        metrics_list.render(inner_area, buf);
+        Table::new(rows, &column_constraints)
+            .header(header)
+            .block(Block::bordered().borders(Borders::ALL))
+            .column_spacing(1)
+            .render(area, buf);
     }
 }
 // remaining parts from the old main
