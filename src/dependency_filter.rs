@@ -2,7 +2,7 @@ use crate::graph::Graph;
 use std::collections::HashSet;
 
 impl Graph {
-    pub fn filter_dependencies(&self) -> Graph {
+    pub fn filter_out_non_workspace_members(&self) -> Graph {
         let node_set: HashSet<_> = self.adjacency_list.keys().cloned().collect();
 
         let filtered_adjacency_list = self
@@ -55,14 +55,14 @@ mod tests {
             .collect(),
         };
 
-        let filtered_graph = original_graph.filter_dependencies();
+        let filtered_graph = original_graph.filter_out_non_workspace_members();
         assert_eq!(filtered_graph, expected_filtered_graph);
     }
 
     #[test]
     fn test_filter_empty_graph() {
         let empty_graph = Graph::new();
-        let filtered_graph = empty_graph.filter_dependencies();
+        let filtered_graph = empty_graph.filter_out_non_workspace_members();
         assert!(filtered_graph.adjacency_list.is_empty());
     }
 
@@ -78,7 +78,7 @@ mod tests {
             .collect(),
         };
 
-        let filtered_graph = graph.filter_dependencies();
+        let filtered_graph = graph.filter_out_non_workspace_members();
         assert_eq!(filtered_graph, graph); // No filtering needed, should be identical
     }
 }

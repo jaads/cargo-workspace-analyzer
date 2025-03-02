@@ -11,19 +11,8 @@ use std::collections::HashMap;
 use std::io;
 use std::path::Path;
 
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
-use ratatui::layout::{Constraint, Direction, Layout, Margin};
-use ratatui::style::{Modifier, Style};
-use ratatui::widgets::{Borders, Cell, Row, Table};
-use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    style::Stylize,
-    symbols::border,
-    text::{Line, Text},
-    widgets::{Block, Paragraph, Widget},
-    DefaultTerminal, Frame,
-};
+use crate::tui::TUI;
+use ratatui::{style::Stylize, widgets::Widget};
 
 mod arguments;
 mod dependency_filter;
@@ -33,23 +22,19 @@ mod graph;
 mod manifests_collector;
 mod metrics;
 mod package_counter;
+mod tui;
 mod types;
 
 fn main() -> io::Result<()> {
     let mut terminal = ratatui::init();
-
     let args = get_args();
     let amount_of_packages = count_packages(&args.directory);
 
-    // load filtered manifests
     let graph = get_dependency_graph(Path::new(&args.directory));
-
-    // filter dependencies to only include references to workspace members
-    let filtered = graph.filter_dependencies();
-
+    let filtered = graph.filter_out_non_workspace_members();
     let coupling_metrics = graph.calculate_coupling();
 
-    let mut app = App {
+    let mut app = TUI {
         exit: false,
         simple_metrics: SimpleMetrics {
             simple_amount: amount_of_packages,
@@ -68,110 +53,6 @@ fn main() -> io::Result<()> {
 }
 
 #[derive(Debug)]
-pub struct App {
-    exit: bool,
-    simple_metrics: SimpleMetrics,
-    coupling_metrics: CouplingMetric,
-    scroll_offset: usize,
-}
-
-impl App {
-    /// runs the application's main loop until the user quits
-    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
-        while !self.exit {
-            terminal.draw(|frame| self.draw(frame))?;
-            self.handle_events()?;
-        }
-        Ok(())
-    }
-
-    fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area());
-
-        let inner_area = frame.area().inner(Margin {
-            horizontal: 2,
-            vertical: 2,
-        });
-
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([
-                Constraint::Percentage(20), // Header
-                Constraint::Percentage(80), // Main Content
-            ])
-            .split(inner_area); // Use inner area here!
-
-        // Render inner widgets inside the main block
-        frame.render_widget(&self.simple_metrics, chunks[0]);
-
-        // Render Coupling Metrics
-        let coupling_widget = CouplingMetricsWidget {
-            metrics: &self.coupling_metrics,
-            scroll_offset: self.scroll_offset,
-        };
-
-        frame.render_widget(&coupling_widget, chunks[1]);
-    }
-
-    fn handle_events(&mut self) -> io::Result<()> {
-        match event::read()? {
-            // it's important to check that the event is a key press event as
-            // crossterm also emits key release and repeat events on Windows.
-            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                self.handle_key_event(key_event)
-            }
-            _ => {}
-        };
-        Ok(())
-    }
-
-    fn handle_key_event(&mut self, key_event: KeyEvent) {
-        match key_event.code {
-            KeyCode::Char('q') => self.exit(),
-            KeyCode::Down => self.scroll_down(),
-            KeyCode::Up => self.scroll_up(),
-            _ => {}
-        }
-    }
-
-    fn scroll_down(&mut self) {
-        let row_count = self.coupling_metrics.len();
-        let max_visible_rows = 10; // Change this based on available space
-
-        if self.scroll_offset + max_visible_rows < row_count {
-            self.scroll_offset += 1;
-        }
-    }
-
-    fn scroll_up(&mut self) {
-        if self.scroll_offset > 0 {
-            self.scroll_offset -= 1;
-        }
-    }
-
-    fn exit(&mut self) {
-        self.exit = true;
-    }
-}
-
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let title = Line::from("Cargo Workspace Analyzer".bold());
-        let instructions = Line::from(vec![
-            " Quit: ".into(),
-            "<Q> ".blue().bold(),
-            " | Scroll: ".into(),
-            "↑ ↓ ".yellow().bold(),
-        ]);
-        Block::bordered()
-            .title(title.centered())
-            .title_bottom(instructions.centered())
-            .border_set(border::THICK)
-            .render(area, buf);
-    }
-}
-
-#[derive(Debug)]
 pub struct SimpleMetrics {
     simple_amount: usize,
     total_packages: usize,
@@ -180,107 +61,11 @@ pub struct SimpleMetrics {
     workspace_dependencies: usize,
 }
 
-impl Widget for &SimpleMetrics {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Min(30), Constraint::Min(30)])
-            .split(area);
-
-        let package_block = Block::bordered()
-            .title(" 📦 Package Count ")
-            .border_set(border::PLAIN);
-
-        Paragraph::new(vec![
-            Line::from(vec![
-                "Total: ".into(),
-                self.total_packages.to_string().yellow(),
-            ]),
-            Line::from(vec![
-                "Workspace: ".into(),
-                self.workspace_packages.to_string().yellow(),
-            ]),
-        ])
-        .block(package_block)
-        .alignment(ratatui::layout::Alignment::Right)
-        .render(chunks[0], buf);
-
-        // Dependency Count Block (Right)
-        let dep_block = Block::bordered()
-            .title(" 🔗 Dependency Count ")
-            .border_set(border::PLAIN);
-
-        Paragraph::new(vec![
-            Line::from(vec![
-                "Total: ".into(),
-                self.total_dependencies.to_string().yellow(),
-            ]),
-            Line::from(vec![
-                "Workspace: ".into(),
-                self.workspace_dependencies.to_string().yellow(),
-            ]),
-        ])
-        .block(dep_block)
-        .alignment(ratatui::layout::Alignment::Right)
-        .render(chunks[1], buf);
-    }
-}
-
 pub struct CouplingMetricsWidget<'a> {
     pub metrics: &'a HashMap<String, (usize, usize, f32)>,
     pub scroll_offset: usize,
 }
 
-impl<'a> Widget for &CouplingMetricsWidget<'a> {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        Block::bordered()
-            .title(" 📊 Coupling Metrics ")
-            .borders(Borders::ALL)
-            .render(area, buf);
-
-        // Define column constraints for table widths
-        let column_constraints = [
-            Constraint::Percentage(40), // Package Name
-            Constraint::Percentage(20), // Ce
-            Constraint::Percentage(20), // Ca
-            Constraint::Percentage(20), // Instability
-        ];
-
-        // Define the table headers
-        let header_cells = [
-            "Package",
-            "Efferent Coupling",
-            "Afferent Coupling",
-            "Instability",
-        ]
-        .iter()
-        .map(|h| Cell::from(*h).style(Style::default().add_modifier(Modifier::BOLD)));
-        let header = Row::new(header_cells).height(1);
-
-        // Limit rows based on scroll_offset
-        let max_visible_rows = (area.height as usize).saturating_sub(3); // Header + padding
-        let rows: Vec<Row> = self
-            .metrics
-            .iter()
-            .skip(self.scroll_offset) // Scroll offset determines starting row
-            .take(max_visible_rows) // Limit number of visible rows
-            .map(|(package, (ce, ca, instability))| {
-                Row::new(vec![
-                    Cell::from(package.as_str()),
-                    Cell::from(ce.to_string()),
-                    Cell::from(ca.to_string()),
-                    Cell::from(format!("{:.2}", instability)),
-                ])
-            })
-            .collect();
-
-        Table::new(rows, &column_constraints)
-            .header(header)
-            .block(Block::bordered().borders(Borders::ALL))
-            .column_spacing(1)
-            .render(area, buf);
-    }
-}
 // remaining parts from the old main
 // fn main() {
 //
