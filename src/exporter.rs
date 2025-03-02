@@ -1,14 +1,26 @@
 use std::fs::File;
+use std::io;
 use std::io::Write;
+use std::path::Path;
 use std::process::Command;
 
 const INPUT_PATH: &str = "temp_diagram.mmd";
 const OUTPUT_PATH: &str = "workspace-analyzer.svg";
+const MMD_OUTPUT_PATH: &str = "workspace-analyzer.mmd";
+
+pub fn write_to_file(content: &str) {
+    let path = Path::new(MMD_OUTPUT_PATH);
+    let mut file = File::create(&path).expect("Could not create file");
+    file.write_all(content.as_bytes())
+        .expect("Could not write to file");
+    file.flush().expect("Could not flush file");
+    println!("✅ File successfully written to: {}", MMD_OUTPUT_PATH);
+}
 
 /// Main function to generate a PNG from Mermaid code.
 /// - `mermaid_code` is the Mermaid diagram as a string.
 /// - `output_path` is the path where the PNG should be saved.
-pub fn generate_mermaid_png(mermaid_code: &str) {
+pub fn export_svg(mermaid_code: &str) {
     verify_mmdc_installation();
     println!("Generating mermaid SVG...");
     write_mermaid_code_to_file(mermaid_code, INPUT_PATH);

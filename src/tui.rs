@@ -1,3 +1,6 @@
+use crate::diagram_creation::create_mermaid;
+use crate::exporter::{export_svg, write_to_file};
+use crate::graph::Graph;
 use crate::metrics::CouplingMetric;
 use crate::{CouplingMetricsWidget, SimpleMetrics};
 use crossterm::event;
@@ -15,6 +18,7 @@ pub struct TUI {
     pub(crate) exit: bool,
     pub(crate) simple_metrics: SimpleMetrics,
     pub(crate) coupling_metrics: CouplingMetric,
+    pub(crate) workspace_graph: Graph,
     pub(crate) scroll_offset: usize,
 }
 
@@ -40,10 +44,9 @@ impl TUI {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Percentage(20), // Header
-                Constraint::Percentage(75),
-                Constraint::Percentage(5), // Main Content
+                Constraint::Percentage(80), // Main Content
             ])
-            .split(inner_area); // Use inner area here!
+            .split(inner_area);
 
         // Render inner widgets inside the main block
         frame.render_widget(&self.simple_metrics, chunks[0]);
@@ -74,8 +77,20 @@ impl TUI {
             KeyCode::Char('q') => self.exit(),
             KeyCode::Down => self.scroll_down(),
             KeyCode::Up => self.scroll_up(),
+            KeyCode::Char('d') => self.make_diagram(),
+            KeyCode::Char('m') => self.save_mmd(),
             _ => {}
         }
+    }
+
+    fn make_diagram(&self) {
+        let mermaid = create_mermaid(&self.workspace_graph);
+        export_svg(&mermaid);
+    }
+
+    fn save_mmd(&self) {
+        let mermaid = create_mermaid(&self.workspace_graph);
+        write_to_file(&*mermaid)
     }
 
     fn scroll_down(&mut self) {
@@ -101,7 +116,14 @@ impl TUI {
 impl Widget for &TUI {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let title = Line::from("Cargo Workspace Analyzer".bold());
-        let instructions = Line::from(vec![" Quit: ".into(), "<Q> ".blue().bold()]);
+        let instructions = Line::from(vec![
+            " Quit: ".into(),
+            "<Q> ".blue().bold(),
+            " | Save SVG diagram: ".into(),
+            "<D> ".cyan().bold(),
+            " | Save mermaid diagram: ".into(),
+            "<M> ".cyan().bold(),
+        ]);
         Block::bordered()
             .title(title.centered())
             .title_bottom(instructions.centered())

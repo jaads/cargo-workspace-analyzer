@@ -2,10 +2,7 @@
 #![doc = include_str!("../README.md")]
 
 use crate::arguments::get_args;
-use crate::diagram_creation::create_diagram;
-use crate::exporter::generate_mermaid_png;
 use crate::manifests_collector::get_dependency_graph;
-use crate::metrics::CouplingMetric;
 use crate::package_counter::count_packages;
 use std::collections::HashMap;
 use std::io;
@@ -44,6 +41,7 @@ fn main() -> io::Result<()> {
             workspace_dependencies: filtered.get_edge_count(),
         },
         coupling_metrics,
+        workspace_graph: filtered,
         scroll_offset: 0,
     };
 
@@ -65,18 +63,3 @@ pub struct CouplingMetricsWidget<'a> {
     pub metrics: &'a HashMap<String, (usize, usize, f32)>,
     pub scroll_offset: usize,
 }
-
-// remaining parts from the old main
-// fn main() {
-//
-//     // create diagram, incl. highlights of circular deps
-//     let result = create_diagram(&filtered);
-//
-//     // save to file if needed
-//     if args.no_file {
-//         println!("{}", result);
-//     } else {
-//         generate_mermaid_png(&result);
-//     }
-
-// }
