@@ -1,15 +1,13 @@
-#![warn(missing_docs)]
+// #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
 use crate::arguments::get_args;
 use crate::manifests_collector::get_dependency_graph;
 use crate::package_counter::count_packages;
-use std::collections::HashMap;
 use std::io;
 use std::path::Path;
 
 use crate::tui::TUI;
-use ratatui::{style::Stylize, widgets::Widget};
 
 mod arguments;
 mod dependency_filter;
@@ -59,7 +57,4 @@ pub struct SimpleMetrics {
     workspace_dependencies: usize,
 }
 
-pub struct CouplingMetricsWidget<'a> {
-    pub metrics: &'a HashMap<String, (usize, usize, f32)>,
-    pub scroll_offset: usize,
-}
+

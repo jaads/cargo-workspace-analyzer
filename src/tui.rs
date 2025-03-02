@@ -2,7 +2,7 @@ use crate::diagram_creation::create_mermaid;
 use crate::exporter::{export_svg, write_to_file};
 use crate::graph::Graph;
 use crate::metrics::CouplingMetric;
-use crate::{CouplingMetricsWidget, SimpleMetrics};
+use crate::SimpleMetrics;
 use crossterm::event;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::buffer::Buffer;
@@ -11,6 +11,7 @@ use ratatui::prelude::{Line, Modifier, Style, Stylize, Widget};
 use ratatui::symbols::border;
 use ratatui::widgets::{Block, Borders, Cell, Paragraph, Row, Table};
 use ratatui::{DefaultTerminal, Frame};
+use std::collections::HashMap;
 use std::io;
 
 #[derive(Debug)]
@@ -20,6 +21,11 @@ pub struct TUI {
     pub(crate) coupling_metrics: CouplingMetric,
     pub(crate) workspace_graph: Graph,
     pub(crate) scroll_offset: usize,
+}
+
+pub struct CouplingMetricsWidget<'a> {
+    pub metrics: &'a HashMap<String, (usize, usize, f32)>,
+    pub scroll_offset: usize,
 }
 
 impl TUI {
