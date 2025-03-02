@@ -59,6 +59,7 @@ fn main() -> io::Result<()> {
             workspace_dependencies: filtered.get_edge_count(),
         },
         coupling_metrics,
+        scroll_offset: 0,
     };
 
     let app_result = app.run(&mut terminal);
@@ -71,6 +72,7 @@ pub struct App {
     exit: bool,
     simple_metrics: SimpleMetrics,
     coupling_metrics: CouplingMetric,
+    scroll_offset: usize,
 }
 
 impl App {
@@ -95,8 +97,7 @@ impl App {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Percentage(20), // Header
-                Constraint::Percentage(70), // Main Content
-                Constraint::Percentage(10), // Footer
+                Constraint::Percentage(80), // Main Content
             ])
             .split(inner_area); // Use inner area here!
 
@@ -106,6 +107,7 @@ impl App {
         // Render Coupling Metrics
         let coupling_widget = CouplingMetricsWidget {
             metrics: &self.coupling_metrics,
+            scroll_offset: self.scroll_offset,
         };
 
         frame.render_widget(&coupling_widget, chunks[1]);
@@ -126,9 +128,24 @@ impl App {
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
             KeyCode::Char('q') => self.exit(),
-            // KeyCode::Left => self.decrement_counter(),
-            // KeyCode::Right => self.increment_counter(),
+            KeyCode::Down => self.scroll_down(),
+            KeyCode::Up => self.scroll_up(),
             _ => {}
+        }
+    }
+
+    fn scroll_down(&mut self) {
+        let row_count = self.coupling_metrics.len();
+        let max_visible_rows = 10; // Change this based on available space
+
+        if self.scroll_offset + max_visible_rows < row_count {
+            self.scroll_offset += 1;
+        }
+    }
+
+    fn scroll_up(&mut self) {
+        if self.scroll_offset > 0 {
+            self.scroll_offset -= 1;
         }
     }
 
@@ -140,7 +157,12 @@ impl App {
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let title = Line::from("Cargo Workspace Analyzer".bold());
-        let instructions = Line::from(vec![" Quit ".into(), "<Q> ".blue().bold()]);
+        let instructions = Line::from(vec![
+            " Quit: ".into(),
+            "<Q> ".blue().bold(),
+            " | Scroll: ".into(),
+            "↑ ↓ ".yellow().bold(),
+        ]);
         Block::bordered()
             .title(title.centered())
             .title_bottom(instructions.centered())
@@ -206,6 +228,7 @@ impl Widget for &SimpleMetrics {
 
 pub struct CouplingMetricsWidget<'a> {
     pub metrics: &'a HashMap<String, (usize, usize, f32)>,
+    pub scroll_offset: usize,
 }
 
 impl<'a> Widget for &CouplingMetricsWidget<'a> {
@@ -234,15 +257,22 @@ impl<'a> Widget for &CouplingMetricsWidget<'a> {
         .map(|h| Cell::from(*h).style(Style::default().add_modifier(Modifier::BOLD)));
         let header = Row::new(header_cells).height(1);
 
-        // Convert metrics into table rows
-        let rows = self.metrics.iter().map(|(package, (ce, ca, instability))| {
-            Row::new(vec![
-                Cell::from(package.as_str()),
-                Cell::from(ce.to_string()),
-                Cell::from(ca.to_string()),
-                Cell::from(format!("{:.2}", instability)),
-            ])
-        });
+        // Limit rows based on scroll_offset
+        let max_visible_rows = (area.height as usize).saturating_sub(3); // Header + padding
+        let rows: Vec<Row> = self
+            .metrics
+            .iter()
+            .skip(self.scroll_offset) // Scroll offset determines starting row
+            .take(max_visible_rows) // Limit number of visible rows
+            .map(|(package, (ce, ca, instability))| {
+                Row::new(vec![
+                    Cell::from(package.as_str()),
+                    Cell::from(ce.to_string()),
+                    Cell::from(ca.to_string()),
+                    Cell::from(format!("{:.2}", instability)),
+                ])
+            })
+            .collect();
 
         Table::new(rows, &column_constraints)
             .header(header)
