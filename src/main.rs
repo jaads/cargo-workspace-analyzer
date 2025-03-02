@@ -11,6 +11,7 @@ use std::io;
 use std::path::Path;
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
+use ratatui::layout::{Constraint, Direction, Layout, Margin};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -45,11 +46,13 @@ fn main() -> io::Result<()> {
 
     let mut app = App {
         exit: false,
-        simple_amount: amount_of_packages,
-        total_packages: graph.get_node_count(),
-        workspace_packages: filtered.get_node_count(),
-        total_dependencies: graph.get_edge_count(),
-        workspace_dependencies: filtered.get_edge_count(),
+        simple_metrics: SimpleMetrics {
+            simple_amount: amount_of_packages,
+            total_packages: graph.get_node_count(),
+            workspace_packages: filtered.get_node_count(),
+            total_dependencies: graph.get_edge_count(),
+            workspace_dependencies: filtered.get_edge_count(),
+        },
     };
 
     let app_result = app.run(&mut terminal);
@@ -60,11 +63,7 @@ fn main() -> io::Result<()> {
 #[derive(Debug)]
 pub struct App {
     exit: bool,
-    simple_amount: usize,
-    total_packages: usize,
-    workspace_packages: usize,
-    total_dependencies: usize,
-    workspace_dependencies: usize,
+    simple_metrics: SimpleMetrics,
 }
 
 impl App {
@@ -79,6 +78,23 @@ impl App {
 
     fn draw(&self, frame: &mut Frame) {
         frame.render_widget(self, frame.area());
+
+        let inner_area = frame.area().inner(Margin {
+            horizontal: 2,
+            vertical: 2,
+        });
+
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Percentage(30), // Header
+                Constraint::Percentage(40), // Main Content
+                Constraint::Percentage(30), // Footer
+            ])
+            .split(inner_area); // Use inner area here!
+
+        // Render inner widgets inside the main block
+        frame.render_widget(&self.simple_metrics, chunks[0]);
     }
 
     fn handle_events(&mut self) -> io::Result<()> {
@@ -111,38 +127,66 @@ impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let title = Line::from("Cargo Workspace Analyzer".bold());
         let instructions = Line::from(vec![" Quit ".into(), "<Q> ".blue().bold()]);
-        let block = Block::bordered()
+        Block::bordered()
             .title(title.centered())
             .title_bottom(instructions.centered())
-            .border_set(border::THICK);
+            .border_set(border::THICK)
+            .render(area, buf);
+    }
+}
 
-        let total_package_amount = Text::from(vec![
+#[derive(Debug)]
+pub struct SimpleMetrics {
+    simple_amount: usize,
+    total_packages: usize,
+    workspace_packages: usize,
+    total_dependencies: usize,
+    workspace_dependencies: usize,
+}
+
+impl Widget for &SimpleMetrics {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Min(30), Constraint::Min(30)])
+            .split(area);
+
+        let package_block = Block::bordered()
+            .title(" 📦 Package Count ")
+            .border_set(border::PLAIN);
+
+        Paragraph::new(vec![
             Line::from(vec![
-                "Simple count: ".into(),
-                self.simple_amount.to_string().yellow(),
-            ]),
-            Line::from(vec![
-                "Total packages: ".into(),
+                "Total: ".into(),
                 self.total_packages.to_string().yellow(),
             ]),
             Line::from(vec![
-                "Workspace packages: ".into(),
+                "Workspace: ".into(),
                 self.workspace_packages.to_string().yellow(),
             ]),
+        ])
+        .block(package_block)
+        .alignment(ratatui::layout::Alignment::Right)
+        .render(chunks[0], buf);
+
+        // Dependency Count Block (Right)
+        let dep_block = Block::bordered()
+            .title(" 🔗 Dependency Count ")
+            .border_set(border::PLAIN);
+
+        Paragraph::new(vec![
             Line::from(vec![
-                "Total dependencies: ".into(),
+                "Total: ".into(),
                 self.total_dependencies.to_string().yellow(),
             ]),
             Line::from(vec![
-                "Workspace dependencies: ".into(),
+                "Workspace: ".into(),
                 self.workspace_dependencies.to_string().yellow(),
             ]),
-        ]);
-
-        Paragraph::new(total_package_amount)
-            .centered()
-            .block(block)
-            .render(area, buf);
+        ])
+        .block(dep_block)
+        .alignment(ratatui::layout::Alignment::Right)
+        .render(chunks[1], buf);
     }
 }
 
@@ -163,23 +207,3 @@ impl Widget for &App {
 //     let metrics = filtered.calculate_coupling();
 //     print_coupling(metrics);
 // }
-
-pub fn print_coupling(metrics: CouplingMetric) {
-    if metrics.is_empty() {
-        println!("No packages found in the graph.");
-        return;
-    }
-
-    println!();
-    println!("Metrics:");
-    println!();
-    println!(
-        "{:<40} {:<20} {:<20} {:<10}",
-        "Package", "Efferent Coupling", "Afferent Coupling", "Instability"
-    );
-    println!("{:-<95}", ""); // Divider line
-
-    for (package, (ce, ca, instability)) in metrics {
-        println!("{:<40} {:<20} {:<20} {:.2}", package, ce, ca, instability);
-    }
-}
