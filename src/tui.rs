@@ -40,7 +40,8 @@ impl TUI {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Percentage(20), // Header
-                Constraint::Percentage(80), // Main Content
+                Constraint::Percentage(75),
+                Constraint::Percentage(5), // Main Content
             ])
             .split(inner_area); // Use inner area here!
 
@@ -100,12 +101,7 @@ impl TUI {
 impl Widget for &TUI {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let title = Line::from("Cargo Workspace Analyzer".bold());
-        let instructions = Line::from(vec![
-            " Quit: ".into(),
-            "<Q> ".blue().bold(),
-            " | Scroll: ".into(),
-            "↑ ↓ ".yellow().bold(),
-        ]);
+        let instructions = Line::from(vec![" Quit: ".into(), "<Q> ".blue().bold()]);
         Block::bordered()
             .title(title.centered())
             .title_bottom(instructions.centered())
@@ -184,10 +180,11 @@ impl<'a> Widget for &CouplingMetricsWidget<'a> {
         ]
         .iter()
         .map(|h| Cell::from(*h).style(Style::default().add_modifier(Modifier::BOLD)));
+
         let header = Row::new(header_cells).height(1);
 
         // Limit rows based on scroll_offset
-        let max_visible_rows = (area.height as usize).saturating_sub(3); // Header + padding
+        let max_visible_rows = (area.height as usize).saturating_sub(4); // Header + padding
         let rows: Vec<Row> = self
             .metrics
             .iter()
@@ -208,5 +205,18 @@ impl<'a> Widget for &CouplingMetricsWidget<'a> {
             .block(Block::bordered().borders(Borders::ALL))
             .column_spacing(1)
             .render(area, buf);
+
+        let instructions_area = Rect {
+            x: area.x,
+            y: area.y + area.height.saturating_sub(1),
+            width: area.width,
+            height: 1,
+        };
+
+        let instructions =
+            Paragraph::new(Line::from(vec![" Scroll: ".into(), "↑ ↓ ".yellow().bold()]))
+                .alignment(ratatui::layout::Alignment::Center);
+
+        instructions.render(instructions_area, buf);
     }
 }
