@@ -3,7 +3,7 @@
 
 use crate::arguments::get_args;
 use crate::diagram_creation::create_diagram;
-use crate::exporter::generate_mermaid_png;
+use crate::exporter::export;
 use crate::manifests_collector::get_dependency_graph;
 use crate::metrics::CouplingMetric;
 use crate::package_counter::count_packages;
@@ -44,14 +44,9 @@ fn main() {
     );
 
     // create diagram, incl. highlights of circular deps
-    let result = create_diagram(&filtered);
+    let mmd = create_diagram(&filtered);
 
-    // save to file if needed
-    if args.no_file {
-        println!("{}", result);
-    } else {
-        generate_mermaid_png(&result);
-    }
+    export(&mmd, args.output_format);
 
     // calculate and print the metrics
     let metrics = filtered.calculate_coupling();

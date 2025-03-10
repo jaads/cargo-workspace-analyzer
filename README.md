@@ -1,8 +1,10 @@
 # Cargo Workspace Analyzer
 
-A CLI tool which provides insights about
-a [Cargo workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html). Currently, the following is
-supported.
+A CLI tool which provides insights about how packages
+within a [Cargo workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) are related to each other.
+Currently, the following is supported.
+
+See `cargo-workspace-analyzer --help` for all options.
 
 ## Workspace Visualization
 
@@ -14,8 +16,11 @@ selected workspace, [Tauri](https://github.com/tauri-apps/tauri).
 
 To have such diagram gives you the following advantages:
 
-- a high level overview of the software you create
-- gives you an idea about the degree of coupling between your packages
+- a high level overview of the software
+- an idea about the degree of coupling between your packages
+
+By default, the tool creates an SVG file called `cargo-workspace-analyzer.svg`. You can change the output format to a
+`.mmd` file with the option `-o mdd`.
 
 ## Circular Dependency Detection
 
