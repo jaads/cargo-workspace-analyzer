@@ -64,9 +64,7 @@ fn render_mermaid_to_svg() {
             panic!("Failed to execute mmdc: {}", e);
         });
 
-    if output.status.success() {
-        println!("Diagram successfully rendered to {}", SVG_OUTPUT);
-    } else {
+    if !output.status.success() {
         eprintln!(
             "Error rendering diagram: {}",
             String::from_utf8_lossy(&output.stderr)
