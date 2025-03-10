@@ -1,6 +1,6 @@
 [package]
 name = "cargo-workspace-analyzer"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 authors = ["Jan Arends <kontakt@jaads.de>"]
 description = "A CLI tool that analyses dependencies within a Cargo workspace."
