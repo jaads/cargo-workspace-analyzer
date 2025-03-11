@@ -24,7 +24,7 @@ fn main() {
     let args = get_args();
 
     // count packages
-    let amount_of_packages = count_packages(&args.directory);
+    let _amount_of_packages = count_packages(&args.directory);
 
     // load filtered manifests
     let graph = get_dependency_graph(Path::new(&args.directory));
@@ -32,14 +32,14 @@ fn main() {
     // filter dependencies to only include references to workspace members
     let filtered = graph.filter_dependencies();
 
-    print_counts(amount_of_packages, &graph, &filtered);
+    print_counts(&graph, &filtered);
+
+    // calculate and print the metrics
+    let metrics = filtered.calculate_coupling();
+    print_coupling(metrics);
 
     // create diagram, incl. highlights of circular deps
     let mmd = create_diagram(&filtered);
 
     export(&mmd, args.output_format);
-
-    // calculate and print the metrics
-    let metrics = filtered.calculate_coupling();
-    print_coupling(metrics);
 }

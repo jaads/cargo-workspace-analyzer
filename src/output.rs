@@ -1,38 +1,60 @@
 use crate::graph::Graph;
 use crate::metrics::CouplingMetric;
+use tabled::settings::Style;
+use tabled::{Table, Tabled};
 
-pub fn print_counts(amount_of_packages: usize, graph: &Graph, filtered: &Graph) {
-    println!(
-        "Found {} packages in total and {} workspace members.",
-        amount_of_packages,
-        graph.get_node_count(),
-    );
-
-    println!(
-        "Found {} dependencies in total and {} workspace dependencies.",
-        graph.get_edge_count(),
-        filtered.get_edge_count()
-    );
+#[derive(Tabled)]
+#[tabled(rename_all = "PascalCase")]
+struct CouplingRow {
+    package: String,
+    fan_in: usize,
+    fan_out: usize,
+    instability: String,
 }
+
+#[derive(Tabled)]
+#[tabled(rename_all = "PascalCase")]
+struct CountMetrics {
+    category: &'static str,
+    packages: usize,
+    dependencies: usize,
+}
+
+pub fn print_counts(graph: &Graph, filtered: &Graph) {
+    let counts = vec![
+        CountMetrics {
+            category: "Total",
+            packages: graph.get_node_count(),
+            dependencies: graph.get_edge_count(),
+        },
+        CountMetrics {
+            category: "Workspace",
+            packages: filtered.get_node_count(),
+            dependencies: filtered.get_edge_count(),
+        },
+    ];
+
+    let table = Table::new(counts).with(Style::rounded()).to_string();
+    println!("{}", table);
+}
+
 pub fn print_coupling(metrics: CouplingMetric) {
     if metrics.is_empty() {
         println!("No packages found in the graph.");
         return;
     }
 
-    println!();
-    println!("Metrics:");
-    println!();
-    println!(
-        " {:<40} {:<10} {:<10} {:<10}",
-        "Package", "Fan In", "Fan Out", "Instability",
-    );
-    println!("{:-<75}", ""); // Divider line
+    let rows: Vec<CouplingRow> = metrics
+        .into_iter()
+        .map(|(package, data)| CouplingRow {
+            package,
+            fan_in: data.fan_in,
+            fan_out: data.fan_out,
+            instability: format!("{:.2}", data.instability),
+        })
+        .collect();
 
-    for metric in metrics {
-        println!(
-            "{:<40} {:<10} {:<10} {:.2}",
-            metric.0, metric.1.fan_in, metric.1.fan_out, metric.1.instability
-        );
-    }
+    let table = Table::new(rows).with(Style::rounded()).to_string();
+
+    println!("{}", table);
 }
