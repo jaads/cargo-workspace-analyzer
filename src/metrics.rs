@@ -1,48 +1,53 @@
 use crate::graph::Graph;
 use std::collections::{HashMap, HashSet};
 
-type Ce = usize;
-type Ca = usize;
-type Instability = f32;
 type PackageName = String;
-pub type CouplingMetric = HashMap<PackageName, (Ce, Ca, Instability)>;
+
+#[derive(PartialEq, Debug)]
+pub struct Metrics {
+    pub fan_in: usize,
+    pub fan_out: usize,
+    pub instability: f32,
+}
+
+pub type CouplingMetric = HashMap<PackageName, Metrics>;
 
 impl Graph {
     pub fn calculate_coupling(&self) -> CouplingMetric {
-        // Map to store Afferent Coupling (Ca) for each package
-        let mut ca_map: HashMap<String, usize> = HashMap::new();
+        let mut fan_in_map: HashMap<String, usize> = HashMap::new();
+        let mut coupling_map: HashMap<String, Metrics> = HashMap::new();
 
-        // Map to store results (Ce, Ca) for each package
-        let mut coupling_map: HashMap<String, (usize, usize, f32)> = HashMap::new();
-
-        // Traverse the graph to calculate Ce and update Ca
         for (package, dependencies) in &self.adjacency_list {
             let unique_dependencies: HashSet<_> =
                 dependencies.iter().filter(|dep| !dep.is_empty()).collect();
-            let ce = unique_dependencies.len();
+            let fan_out = unique_dependencies.len();
 
-            // Update Ca (afferent coupling) for each dependency
             for dependency in unique_dependencies {
-                *ca_map.entry(dependency.clone()).or_insert(0) += 1;
+                *fan_in_map.entry(dependency.clone()).or_insert(0) += 1;
             }
 
-            // Store the Ce value in the result map with a placeholder instability value
-            coupling_map.insert(package.clone(), (ce, 0, 0.0));
+            coupling_map.insert(
+                package.clone(),
+                Metrics {
+                    fan_in: 0,
+                    fan_out,
+                    instability: 0.0,
+                },
+            );
         }
 
-        // Update Ca values and calculate Instability
-        for (package, ca) in ca_map {
+        for (package, fan_in) in fan_in_map {
             if let Some(entry) = coupling_map.get_mut(&package) {
-                entry.1 = ca; // Update Ca
+                entry.fan_in = fan_in;
             }
         }
 
-        // Now calculate instability for all packages
-        for (ce, ca, instability) in coupling_map.values_mut() {
-            if *ca == 0 && *ce > 0 {
-                *instability = 1.0; // Fully unstable if Ca = 0 and Ce > 0
-            } else if *ca + *ce > 0 {
-                *instability = *ce as f32 / (*ca + *ce) as f32;
+        for metrics in coupling_map.values_mut() {
+            if metrics.fan_in == 0 && metrics.fan_out > 0 {
+                metrics.instability = 1.0;
+            } else if metrics.fan_in + metrics.fan_out > 0 {
+                metrics.instability =
+                    metrics.fan_out as f32 / (metrics.fan_in + metrics.fan_out) as f32;
             }
         }
 
@@ -58,21 +63,21 @@ mod tests {
     fn test_empty_graph() {
         let graph = Graph::new();
         let coupling = graph.calculate_coupling();
-        assert!(
-            coupling.is_empty(),
-            "Coupling map should be empty for an empty graph"
-        );
+        assert!(coupling.is_empty());
     }
+
     #[test]
     fn test_single_package_no_dependencies() {
         let mut graph = Graph::new();
         graph.adjacency_list.insert("package_a".to_string(), vec![]);
         let coupling = graph.calculate_coupling();
-
         assert_eq!(
             coupling.get("package_a"),
-            Some(&(0, 0, 0.0)),
-            "Single package with no dependencies should have Ce = 0, Ca = 0, and Instability = 0.0"
+            Some(&Metrics {
+                fan_in: 0,
+                fan_out: 0,
+                instability: 0.0
+            })
         );
     }
 
@@ -84,18 +89,22 @@ mod tests {
             vec!["package_b".to_string(), "package_b".to_string()],
         );
         graph.adjacency_list.insert("package_b".to_string(), vec![]);
-
         let coupling = graph.calculate_coupling();
-
         assert_eq!(
             coupling.get("package_a"),
-            Some(&(1, 0, 1.0)),
-            "Package_a should have Ce = 1, Ca = 0, and Instability = 1.0"
+            Some(&Metrics {
+                fan_in: 0,
+                fan_out: 1,
+                instability: 1.0
+            })
         );
         assert_eq!(
             coupling.get("package_b"),
-            Some(&(0, 1, 0.0)),
-            "Package_b should have Ce = 0, Ca = 1, and Instability = 0.0"
+            Some(&Metrics {
+                fan_in: 1,
+                fan_out: 0,
+                instability: 0.0
+            })
         );
     }
 
@@ -105,13 +114,14 @@ mod tests {
         graph
             .adjacency_list
             .insert("package_a".to_string(), vec!["package_b".to_string()]);
-
         let coupling = graph.calculate_coupling();
-
         assert_eq!(
             coupling.get("package_a"),
-            Some(&(1, 0, 1.0)),
-            "Package_a should have Ce = 1, Ca = 0, and Instability = 1.0"
+            Some(&Metrics {
+                fan_in: 0,
+                fan_out: 1,
+                instability: 1.0
+            })
         );
     }
 
@@ -126,23 +136,30 @@ mod tests {
             .adjacency_list
             .insert("package_b".to_string(), vec!["package_c".to_string()]);
         graph.adjacency_list.insert("package_c".to_string(), vec![]);
-
         let coupling = graph.calculate_coupling();
-
         assert_eq!(
             coupling.get("package_a"),
-            Some(&(2, 0, 1.0)),
-            "Package_a should have Ce = 2, Ca = 0, and Instability = 1.0"
+            Some(&Metrics {
+                fan_in: 0,
+                fan_out: 2,
+                instability: 1.0
+            })
         );
         assert_eq!(
             coupling.get("package_b"),
-            Some(&(1, 1, 0.5)),
-            "Package_b should have Ce = 1, Ca = 1, and Instability = 0.5"
+            Some(&Metrics {
+                fan_in: 1,
+                fan_out: 1,
+                instability: 0.5
+            })
         );
         assert_eq!(
             coupling.get("package_c"),
-            Some(&(0, 2, 0.0)),
-            "Package_c should have Ce = 0, Ca = 2, and Instability = 0.0"
+            Some(&Metrics {
+                fan_in: 2,
+                fan_out: 0,
+                instability: 0.0
+            })
         );
     }
 
@@ -155,18 +172,22 @@ mod tests {
         graph
             .adjacency_list
             .insert("package_b".to_string(), vec!["package_a".to_string()]);
-
         let coupling = graph.calculate_coupling();
-
         assert_eq!(
             coupling.get("package_a"),
-            Some(&(1, 1, 0.5)),
-            "Package_a should have Ce = 1, Ca = 1, and Instability = 0.5"
+            Some(&Metrics {
+                fan_in: 1,
+                fan_out: 1,
+                instability: 0.5
+            })
         );
         assert_eq!(
             coupling.get("package_b"),
-            Some(&(1, 1, 0.5)),
-            "Package_b should have Ce = 1, Ca = 1, and Instability = 0.5"
+            Some(&Metrics {
+                fan_in: 1,
+                fan_out: 1,
+                instability: 0.5
+            })
         );
     }
 
@@ -181,28 +202,38 @@ mod tests {
             .insert("package_c".to_string(), vec!["package_d".to_string()]);
         graph.adjacency_list.insert("package_b".to_string(), vec![]);
         graph.adjacency_list.insert("package_d".to_string(), vec![]);
-
         let coupling = graph.calculate_coupling();
-
         assert_eq!(
             coupling.get("package_a"),
-            Some(&(1, 0, 1.0)),
-            "Package_a should have Ce = 1, Ca = 0, and Instability = 1.0"
+            Some(&Metrics {
+                fan_in: 0,
+                fan_out: 1,
+                instability: 1.0
+            })
         );
         assert_eq!(
             coupling.get("package_b"),
-            Some(&(0, 1, 0.0)),
-            "Package_b should have Ce = 0, Ca = 1, and Instability = 0.0"
+            Some(&Metrics {
+                fan_in: 1,
+                fan_out: 0,
+                instability: 0.0
+            })
         );
         assert_eq!(
             coupling.get("package_c"),
-            Some(&(1, 0, 1.0)),
-            "Package_c should have Ce = 1, Ca = 0, and Instability = 1.0"
+            Some(&Metrics {
+                fan_in: 0,
+                fan_out: 1,
+                instability: 1.0
+            })
         );
         assert_eq!(
             coupling.get("package_d"),
-            Some(&(0, 1, 0.0)),
-            "Package_d should have Ce = 0, Ca = 1, and Instability = 0.0"
+            Some(&Metrics {
+                fan_in: 1,
+                fan_out: 0,
+                instability: 0.0
+            })
         );
     }
 
@@ -217,23 +248,30 @@ mod tests {
             .adjacency_list
             .insert("package_b".to_string(), vec!["package_c".to_string()]);
         graph.adjacency_list.insert("package_c".to_string(), vec![]);
-
         let coupling = graph.calculate_coupling();
-
         assert_eq!(
             coupling.get("package_a"),
-            Some(&(2, 0, 1.0)),
-            "Package_a should have Ce = 2, Ca = 0, and Instability = 1.0"
+            Some(&Metrics {
+                fan_in: 0,
+                fan_out: 2,
+                instability: 1.0
+            })
         );
         assert_eq!(
             coupling.get("package_b"),
-            Some(&(1, 1, 0.5)),
-            "Package_b should have Ce = 1, Ca = 1, and Instability = 0.5"
+            Some(&Metrics {
+                fan_in: 1,
+                fan_out: 1,
+                instability: 0.5
+            })
         );
         assert_eq!(
             coupling.get("package_c"),
-            Some(&(0, 2, 0.0)),
-            "Package_c should have Ce = 0, Ca = 2, and Instability = 0.0"
+            Some(&Metrics {
+                fan_in: 2,
+                fan_out: 0,
+                instability: 0.0
+            })
         );
     }
 }

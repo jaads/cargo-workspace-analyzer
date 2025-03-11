@@ -25,11 +25,14 @@ pub fn print_coupling(metrics: CouplingMetric) {
     println!();
     println!(
         " {:<40} {:<10} {:<10} {:<10}",
-         "Package", "Fan In", "Fan Out", "Instability",
+        "Package", "Fan In", "Fan Out", "Instability",
     );
     println!("{:-<75}", ""); // Divider line
 
-    for (package, (ce, ca, instability)) in metrics {
-        println!("{:<40} {:<10} {:<10} {:.2}", package, ce, ca, instability);
+    for metric in metrics {
+        println!(
+            "{:<40} {:<10} {:<10} {:.2}",
+            metric.0, metric.1.fan_in, metric.1.fan_out, metric.1.instability
+        );
     }
 }
