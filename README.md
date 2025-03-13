@@ -33,13 +33,15 @@ this [example](https://www.mermaidchart.com/raw/35c87214-1aea-46a9-b633-8fd3bd4f
 The created graph is used to calculate common metrics in regard to the coupling of packages.
 The following metric are supported:
 
-- Afferent Coupling
-- Efferent Coupling
+- Fan In
+- Fan Out
 - Instability Metric
 
-## Package Count
+## Package and Dependency Count
 
-It will also display the amount of packages in your workspace.
+It will also display the amount of packages and the amount of dependencies.
+Once for all the founds packages and dependencies in the codebase, and once only for the packages actually within the
+workspace and interdependencies.
 
 # Installation
 
@@ -72,11 +74,9 @@ Or use an argument to specify the location of the workspace and run it from wher
  cargo-workspace-analyzer --working-dir /path/to/your/workspace
  ```
 
-If you use the `--no-file` argument, the resulting [Mermaid](https://mermaid.js.org/) diagram will be printed to the
-console. You can copy it for somewhere else for further processing.
-
-<details>
-<summary>Here's an example of circular dependency detection.</summary>
+By default, it will create an SVG files in the directory where it run.
+You can also create a mmd file, in which then only the diagram is placed in [Mermaid](https://mermaid.js.org/) syntax.
+You can use it then for further processing. Here's an example of the content:
 
 ```
 graph TD
@@ -86,6 +86,5 @@ graph TD
     service-2 --> db-connector
 ```
 
-</details>
 
 
