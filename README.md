@@ -1,5 +1,7 @@
 # Cargo Workspace Analyzer
 
+> **WARNING**: This project is not maintained anymore in favor of [TangleGuard](https://tangleguard.com/).
+
 A CLI tool which provides insights about how packages
 within a [Cargo workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) are related to each other.
 Currently, the following is supported.
@@ -85,6 +87,3 @@ graph TD
     API --> service-1
     service-2 --> db-connector
 ```
-
-
-
